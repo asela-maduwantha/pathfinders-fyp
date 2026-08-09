@@ -1,0 +1,27 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# Output uploads and job results
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+app/static/results/*
+!app/static/results/.gitkeep
+
+# Module 2 (DBH + maturity) run artifacts
+outputs/
+
+# Ultralytics auto-downloads YOLO-World/FastSAM weights into the working directory on first use
+/yolov8s-worldv2.pt
+/FastSAM-s.pt
+
+# IDE / System
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+notebooks/*.py

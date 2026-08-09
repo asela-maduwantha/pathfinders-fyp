@@ -1,0 +1,26 @@
+{
+  "teak": {
+    "commercial_flag": true,
+    "status": "Commercial species",
+    "category": "High-value timber species",
+    "note": "Preliminary species-based commercial indication only."
+  },
+  "mahogany": {
+    "commercial_flag": true,
+    "status": "Commercial species",
+    "category": "Commercial timber species",
+    "note": "Preliminary species-based commercial indication only."
+  },
+  "pine": {
+    "commercial_flag": true,
+    "status": "Commercial species",
+    "category": "Commercial plantation timber species",
+    "note": "Preliminary species-based commercial indication only."
+  },
+  "rubber": {
+    "commercial_flag": true,
+    "status": "Commercial species",
+    "category": "Commercial plantation species",
+    "note": "Preliminary species-based commercial indication only."
+  }
+}

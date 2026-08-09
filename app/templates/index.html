@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree Detection, Classification &amp; Maturity Assessment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Header -->
+        <header class="app-header">
+            <div class="header-brand">
+                <div class="header-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                </div>
+                <div>
+                    <h1>Tree Species Identification System</h1>
+                    <p class="subtitle">Detection, Classification, and Maturity Assessment for Forest &amp; Plantation Trees</p>
+                </div>
+            </div>
+            <div class="badge-tag">
+                <span class="badge-dot"></span> Tree Detection, Classification &amp; Maturity Assessment
+            </div>
+        </header>
+
+        <!-- Analysis Mode Selection Tabs, ordered to match the pipeline itself:
+             single stages -> combined stages -> full end-to-end chain. -->
+        <nav class="mode-tabs-container" aria-label="Analysis Mode Tabs">
+            <button type="button" class="tab-btn" id="tabDetector" data-tab="detector">
+                <span class="tab-step-badge">1</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <div class="tab-text">
+                    <span class="tab-title">Tree Detection</span>
+                    <span class="tab-sub">Trunk detection &amp; segmentation</span>
+                </div>
+            </button>
+            <button type="button" class="tab-btn" id="tabClassifier" data-tab="classifier">
+                <span class="tab-step-badge">2</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                <div class="tab-text">
+                    <span class="tab-title">Tree Classification</span>
+                    <span class="tab-sub">Bark-based species identification</span>
+                </div>
+            </button>
+            <button type="button" class="tab-btn active" id="tabIntegrated" data-tab="integrated">
+                <span class="tab-step-badge">3</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                <div class="tab-text">
+                    <span class="tab-title">Tree Detection + Classification</span>
+                    <span class="tab-sub">Combined detection &amp; species pipeline</span>
+                </div>
+            </button>
+            <button type="button" class="tab-btn" id="tabMaturity" data-tab="maturity">
+                <span class="tab-step-badge">4</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-3-3L3 18"/></svg>
+                <div class="tab-text">
+                    <span class="tab-title">Maturity Assessment</span>
+                    <span class="tab-sub">DBH &amp; maturity estimation &middot; accepts HEIC</span>
+                </div>
+            </button>
+            <button type="button" class="tab-btn" id="tabAutoFlow" data-tab="autoflow">
+                <span class="tab-step-badge">5</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                <div class="tab-text">
+                    <span class="tab-title">Tree Detection + Classification + Maturity Assessment</span>
+                    <span class="tab-sub">Full end-to-end pipeline &middot; accepts HEIC</span>
+                </div>
+            </button>
+            <button type="button" class="tab-btn" id="tabTimber" data-tab="timber">
+                <span class="tab-step-badge">6</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M5 8l7-6 7 6"/><rect x="4" y="8" width="16" height="12" rx="1"/></svg>
+                <div class="tab-text">
+                    <span class="tab-title">Timber Grading</span>
+                    <span class="tab-sub">Log cut-face detection &amp; quality grading</span>
+                </div>
+            </button>
+            <button type="button" class="tab-btn" id="tabGradingBid" data-tab="grading-bid">
+                <span class="tab-step-badge">7</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                <div class="tab-text">
+                    <span class="tab-title">Grading + Bid Price</span>
+                    <span class="tab-sub">Grade a photo, then estimate its auction value</span>
+                </div>
+            </button>
+            <button type="button" class="tab-btn" id="tabAuction" data-tab="auction">
+                <span class="tab-step-badge">8</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <div class="tab-text">
+                    <span class="tab-title">Auction Bid Price</span>
+                    <span class="tab-sub">Standalone bid price estimation</span>
+                </div>
+            </button>
+        </nav>
+
+        <main class="main-content">
+            <!-- Shared Upload Card (Tree Detection, Tree Classification, Tree Detection + Classification, Full Pipeline) -->
+            <section class="card upload-section" id="uploadCard">
+                <div class="card-header">
+                    <h2 id="uploadTitle">Upload Forest Image</h2>
+                    <p id="uploadDesc">Select a high-resolution forest or plantation image containing one or more tree trunks.</p>
+                </div>
+
+                <div class="dropzone" id="dropzone">
+                    <input type="file" id="imageInput" accept=".jpg,.jpeg,.png,.webp" hidden>
+                    <div class="dropzone-prompt" id="dropzonePrompt">
+                        <div class="upload-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </div>
+                        <p class="dropzone-text"><strong>Drag and drop your image here</strong> or click to browse</p>
+                        <span class="file-limits" id="fileLimitsText">Supported formats: JPEG, PNG, WEBP (Max 20MB) — EXIF orientation auto-corrected</span>
+                        <button type="button" class="btn btn-secondary" id="browseBtn">Choose Image</button>
+                    </div>
+
+                    <div class="preview-container hidden" id="previewContainer">
+                        <img id="imagePreview" src="" alt="Selected image preview">
+                        <div class="preview-info">
+                            <span id="fileName" class="file-name">filename.jpg</span>
+                            <span id="fileSize" class="file-size">0.0 MB</span>
+                            <button type="button" class="btn-icon" id="removeImgBtn" title="Remove image">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-bar">
+                    <button type="button" class="btn btn-primary" id="analyzeBtn" disabled>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <span id="analyzeBtnText">Analyze Trees</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Auto-Flow Optional Maturity Fields (shown only in the full pipeline tab) -->
+            <section class="card maturity-module hidden" id="autoFlowOptionalCard">
+                <div class="card-header">
+                    <h2>Optional Maturity Fields</h2>
+                    <p>These refine the maturity estimate. All fields are optional &mdash; leave blank if unknown.</p>
+                </div>
+                <div class="mat-form-grid">
+                    <label>
+                        <span>Age (years)</span>
+                        <input id="autoFlowAgeYears" type="number" min="0" step="0.01">
+                    </label>
+                    <label>
+                        <span>Height (m)</span>
+                        <input id="autoFlowHeightM" type="number" min="0" step="0.01">
+                    </label>
+                    <label>
+                        <span>Annual rainfall (mm)</span>
+                        <input id="autoFlowAnnualRainfallMm" type="number" min="0" step="0.01">
+                    </label>
+                    <label>
+                        <span>Elevation (m)</span>
+                        <input id="autoFlowElevationM" type="number" min="0" step="0.01">
+                    </label>
+                    <label>
+                        <span>Stems per hectare</span>
+                        <input id="autoFlowStemsPerHa" type="number" min="0" step="0.01">
+                    </label>
+                    <label>
+                        <span>Climatic zone</span>
+                        <select id="autoFlowClimaticZone"></select>
+                    </label>
+                    <label>
+                        <span>Spacing</span>
+                        <select id="autoFlowSpacing"></select>
+                    </label>
+                    <label>
+                        <span>Site class</span>
+                        <select id="autoFlowSiteClass"></select>
+                    </label>
+                    <label>
+                        <span>Management intensity</span>
+                        <select id="autoFlowManagementIntensity"></select>
+                    </label>
+                    <label>
+                        <span>Intended product</span>
+                        <select id="autoFlowIntendedProduct"></select>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Real-Time Process Timeline (Tree Detection + Classification tab only, 11 stages) -->
+            <section class="card timeline-card hidden" id="timelineCard">
+                <div class="card-header">
+                    <h2>Real-Time Process Monitoring</h2>
+                    <p>Live execution progress across every stage of the detection + classification pipeline.</p>
+                </div>
+                <div class="timeline-container" id="timelineContainer">
+                    <!-- Stages generated dynamically via JS -->
+                </div>
+            </section>
+
+            <!-- Full Pipeline Stepper (Tree Detection + Classification + Maturity Assessment tab only) -->
+            <section class="card hidden" id="autoFlowStepperCard">
+                <div class="card-header">
+                    <h2>Pipeline Steps</h2>
+                    <p>One photo runs through every stage below, in order.</p>
+                </div>
+                <div class="stepper" id="autoFlowStepper">
+                    <div class="stepper-step" id="autoFlowStep1"><span class="stepper-num">1</span>Detect trees</div>
+                    <span class="stepper-arrow">&rarr;</span>
+                    <div class="stepper-step" id="autoFlowStep2"><span class="stepper-num">2</span>Classify species</div>
+                    <span class="stepper-arrow">&rarr;</span>
+                    <div class="stepper-step" id="autoFlowStep3"><span class="stepper-num">3</span>Assess maturity</div>
+                </div>
+            </section>
+
+            <!-- Results: Tree Detection + Classification Output -->
+            <section class="results-wrapper hidden" id="resultsWrapperIntegrated">
+                <div class="summary-grid" id="summaryGrid">
+                    <div class="metric-card">
+                        <span class="metric-label">Trees Detected</span>
+                        <span class="metric-value" id="summaryDetected">0</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Assessable Trunks</span>
+                        <span class="metric-value" id="summaryAssessable">0</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Bark-Ready Trunks</span>
+                        <span class="metric-value" id="summaryBarkReady">0</span>
+                    </div>
+                    <div class="metric-card metric-success">
+                        <span class="metric-label">Species Identified</span>
+                        <span class="metric-value" id="summaryIdentified">0</span>
+                    </div>
+                    <div class="metric-card metric-warning">
+                        <span class="metric-label">Open-Set Unknown</span>
+                        <span class="metric-value" id="summaryUnknown">0</span>
+                    </div>
+                    <div class="metric-card metric-warning">
+                        <span class="metric-label">Uncertain Consensus</span>
+                        <span class="metric-value" id="summaryUncertain">0</span>
+                    </div>
+                    <div class="metric-card metric-danger">
+                        <span class="metric-label">Not Assessable</span>
+                        <span class="metric-value" id="summaryNotAssessable">0</span>
+                    </div>
+                    <div class="metric-card metric-success">
+                        <span class="metric-label">Commercial Flagged</span>
+                        <span class="metric-value" id="summaryCommercial">0</span>
+                    </div>
+                </div>
+
+                <div class="card annotated-image-card">
+                    <div class="card-header">
+                        <h2>Annotated Tree Trunk Segmentation Output</h2>
+                        <p>Original scene overlayed with detected mask polygon outlines and concise operational status tags.</p>
+                    </div>
+                    <div class="annotated-image-wrapper">
+                        <img id="annotatedImage" src="" alt="Annotated inference result">
+                    </div>
+                </div>
+
+                <div class="trees-details-section">
+                    <div class="section-title">
+                        <h2>Per-Tree Operational Analysis</h2>
+                        <p>Detailed stage breakdowns, multi-ROI candidate voting, and open-set verification for each detected tree trunk.</p>
+                    </div>
+                    <div id="treesListContainer" class="trees-list-container">
+                        <!-- Tree cards rendered dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results: Tree Detection Output -->
+            <section class="results-wrapper hidden" id="resultsWrapperDetector">
+                <div class="summary-grid">
+                    <div class="metric-card">
+                        <span class="metric-label">Trees Detected</span>
+                        <span class="metric-value" id="detectorDetected">0</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Average Confidence</span>
+                        <span class="metric-value" id="detectorAvgConf">0.0%</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Total Mask Area</span>
+                        <span class="metric-value" id="detectorTotalArea">0 px²</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Image Resolution</span>
+                        <span class="metric-value" id="detectorResolution">-</span>
+                    </div>
+                </div>
+
+                <div class="card annotated-image-card">
+                    <div class="card-header">
+                        <h2>Tree Trunk Segmentation Visualizer</h2>
+                        <p>Tree trunk instance segmentation polygon contours and deterministic spatial left-to-right labeling.</p>
+                    </div>
+                    <div class="annotated-image-wrapper">
+                        <img id="detectorAnnotatedImage" src="" alt="Detector inference output">
+                    </div>
+                </div>
+
+                <div class="trees-details-section">
+                    <div class="section-title">
+                        <h2>Detected Tree Trunk Candidates</h2>
+                        <p>Polygon boundaries, centroid positions, mask coverage, and individual trunk crops.</p>
+                    </div>
+                    <div id="detectorListContainer" class="trees-list-container">
+                        <!-- Detector tree cards rendered dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results: Tree Classification Output -->
+            <section class="results-wrapper hidden" id="resultsWrapperClassifier">
+                <div class="card classifier-hero-card" id="classifierHero">
+                    <div class="hero-badge-container">
+                        <span class="status-badge" id="clfDecisionBadge">KNOWN</span>
+                        <span class="species-title" id="clfSpeciesName">Mahogany (Swietenia macrophylla)</span>
+                    </div>
+                    <div class="hero-metrics-grid">
+                        <div class="hero-metric">
+                            <span class="h-label">Raw Confidence</span>
+                            <span class="h-value" id="clfRawConf">0.0%</span>
+                        </div>
+                        <div class="hero-metric">
+                            <span class="h-label">Prototype Distance</span>
+                            <span class="h-value" id="clfProtoDist">0.000</span>
+                        </div>
+                        <div class="hero-metric">
+                            <span class="h-label">Energy Score</span>
+                            <span class="h-value" id="clfEnergy">-0.000</span>
+                        </div>
+                        <div class="hero-metric">
+                            <span class="h-label">Combined Unknownness</span>
+                            <span class="h-value" id="clfUnknownScore">0.000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="two-column-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Species Probability Distribution</h2>
+                            <p>Confidence distribution across known tree species classes.</p>
+                        </div>
+                        <div class="prob-bars-container" id="clfProbBars">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Patch Attention Weights Distribution</h2>
+                            <p>Attention weights allocated across 4 local spatial patches.</p>
+                        </div>
+                        <div class="attention-grid" id="clfAttentionGrid">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Multi-Scale Preprocessed Classification Input Artifacts</h2>
+                        <p>Global 384x384 aspect-fit representation and 4 local 224x224 spatial corner patches.</p>
+                    </div>
+                    <div class="patches-visualizer-grid" id="clfPatchesGrid">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results: Tree Detection + Classification + Maturity Assessment Output -->
+            <section class="results-wrapper hidden maturity-module" id="resultsWrapperAutoFlow">
+                <div class="card annotated-image-card">
+                    <div class="card-header">
+                        <h2>Detected &amp; Identified Tree</h2>
+                        <p>Trunk detection with species identification on the uploaded photo.</p>
+                    </div>
+                    <div class="annotated-image-wrapper">
+                        <img id="autoFlowAnnotatedImage" src="" alt="Auto-flow identification output">
+                    </div>
+                </div>
+
+                <div class="card classifier-hero-card" id="autoFlowHero">
+                    <div class="hero-badge-container">
+                        <span class="status-badge" id="autoFlowDecisionBadge">KNOWN</span>
+                        <span class="species-title" id="autoFlowSpeciesName">-</span>
+                    </div>
+                    <div class="hero-metrics-grid">
+                        <div class="hero-metric">
+                            <span class="h-label">Detection Confidence</span>
+                            <span class="h-value" id="autoFlowConfidence">0.0%</span>
+                        </div>
+                        <div class="hero-metric">
+                            <span class="h-label">Commercial Flag</span>
+                            <span class="h-value" id="autoFlowCommercial">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mat-panel hidden" id="autoFlowUnresolvedCard">
+                    <p id="autoFlowUnresolvedMessage"></p>
+                </div>
+
+                <div id="autoFlowMaturitySection" class="hidden">
+                    <div class="card-header">
+                        <h2>DBH &amp; Maturity Estimation</h2>
+                        <p>Trunk segmentation, monocular depth, cylinder DBH, and maturity estimation &mdash; run automatically using the identified species.</p>
+                    </div>
+                    <div id="autoFlowResultCards" class="result-cards"></div>
+
+                    <div class="gallery-block">
+                        <h3>Segmentation</h3>
+                        <div id="autoFlowOverlayGallery" class="gallery"></div>
+                    </div>
+                    <div class="gallery-block">
+                        <h3>DBH Measurement Rows</h3>
+                        <div id="autoFlowMeasurementGallery" class="gallery"></div>
+                    </div>
+                    <div class="gallery-block">
+                        <h3>Maturity Curve</h3>
+                        <div id="autoFlowMaturityGallery" class="gallery"></div>
+                    </div>
+
+                    <a id="autoFlowZipLink" class="download hidden" href="#" download>Download ZIP</a>
+                    <details class="log-block">
+                        <summary>Processing Log</summary>
+                        <pre id="autoFlowLogOutput"></pre>
+                    </details>
+                </div>
+            </section>
+
+            <!-- Maturity Assessment Panel: merged Single Tree / Multiple Trees, accepts HEIC -->
+            <section class="hidden maturity-module" id="maturityPanel">
+                <div class="mode-toggle" id="matModeToggle" role="tablist" aria-label="Maturity Assessment Mode">
+                    <button type="button" class="mode-toggle-btn active" id="matModeSingleBtn" data-mat-mode="single">Single Tree</button>
+                    <button type="button" class="mode-toggle-btn" id="matModeMultipleBtn" data-mat-mode="multiple">Multiple Trees</button>
+                </div>
+
+                <!-- Single Tree Mode -->
+                <div id="matSingleSection">
+                    <section class="mat-panel card">
+                        <div class="card-header">
+                            <h2>Tree Details</h2>
+                            <p>One tree, one or more photos of the same trunk &mdash; runs the full segment &rarr; depth &rarr; DBH &rarr; maturity pipeline. Accepts JPEG, PNG, WEBP, and HEIC/HEIF.</p>
+                        </div>
+                        <div class="mat-form-grid">
+                            <label>
+                                <span>Species</span>
+                                <select id="matSingleSpecies"></select>
+                            </label>
+                            <label class="wide">
+                                <span>Images</span>
+                                <input id="matSingleImages" type="file" multiple accept=".jpg,.jpeg,.png,.webp,.heic,.heif">
+                            </label>
+                        </div>
+
+                        <div class="section-title">Optional maturity fields</div>
+                        <div class="mat-form-grid">
+                            <label>
+                                <span>Age (years)</span>
+                                <input id="matSingleAgeYears" type="number" min="0" step="0.01">
+                            </label>
+                            <label>
+                                <span>Height (m)</span>
+                                <input id="matSingleHeightM" type="number" min="0" step="0.01">
+                            </label>
+                            <label>
+                                <span>Annual rainfall (mm)</span>
+                                <input id="matSingleAnnualRainfallMm" type="number" min="0" step="0.01">
+                            </label>
+                            <label>
+                                <span>Elevation (m)</span>
+                                <input id="matSingleElevationM" type="number" min="0" step="0.01">
+                            </label>
+                            <label>
+                                <span>Stems per hectare</span>
+                                <input id="matSingleStemsPerHa" type="number" min="0" step="0.01">
+                            </label>
+                            <label>
+                                <span>Climatic zone</span>
+                                <select id="matSingleClimaticZone"></select>
+                            </label>
+                            <label>
+                                <span>Spacing</span>
+                                <select id="matSingleSpacing"></select>
+                            </label>
+                            <label>
+                                <span>Site class</span>
+                                <select id="matSingleSiteClass"></select>
+                            </label>
+                            <label>
+                                <span>Management intensity</span>
+                                <select id="matSingleManagementIntensity"></select>
+                            </label>
+                            <label>
+                                <span>Intended product</span>
+                                <select id="matSingleIntendedProduct"></select>
+                            </label>
+                        </div>
+
+                        <div class="action-bar">
+                            <button id="matSingleRun" type="button" class="btn btn-primary">Run Estimation</button>
+                        </div>
+                        <div class="stepper hidden" id="matSingleStepper">
+                            <div class="stepper-step" id="matSingleStep1"><span class="stepper-num">1</span>Segment trunk</div>
+                            <span class="stepper-arrow">&rarr;</span>
+                            <div class="stepper-step" id="matSingleStep2"><span class="stepper-num">2</span>Measure DBH</div>
+                            <span class="stepper-arrow">&rarr;</span>
+                            <div class="stepper-step" id="matSingleStep3"><span class="stepper-num">3</span>Predict maturity</div>
+                        </div>
+                        <div id="matSingleStatus" class="mat-status">Ready</div>
+                    </section>
+
+                    <section class="mat-results">
+                        <div class="card-header">
+                            <h2>Results</h2>
+                            <a id="matSingleZipLink" class="download hidden" href="#" download>Download ZIP</a>
+                        </div>
+                        <div id="matSingleResultCards" class="result-cards"></div>
+                        <div class="gallery-block">
+                            <h3>Segmentation</h3>
+                            <div id="matSingleOverlayGallery" class="gallery"></div>
+                        </div>
+                        <div class="gallery-block">
+                            <h3>DBH Measurement Rows</h3>
+                            <div id="matSingleMeasurementGallery" class="gallery"></div>
+                        </div>
+                        <div class="gallery-block">
+                            <h3>Maturity Curve</h3>
+                            <div id="matSingleMaturityGallery" class="gallery"></div>
+                        </div>
+                        <details class="log-block">
+                            <summary>Processing Log</summary>
+                            <pre id="matSingleLogOutput"></pre>
+                        </details>
+                    </section>
+                </div>
+
+                <!-- Multiple Trees Mode -->
+                <div id="matMultipleSection" class="hidden">
+                    <div class="mat-layout">
+                        <section class="mat-panel card">
+                            <div class="card-header">
+                                <h2>Add Tree</h2>
+                                <p>Accepts JPEG, PNG, WEBP, and HEIC/HEIF.</p>
+                            </div>
+                            <div class="mat-form-grid">
+                                <label>
+                                    <span>Tree name</span>
+                                    <input id="matTreeName" type="text" value="Tree_01" autocomplete="off">
+                                </label>
+                                <label>
+                                    <span>Species</span>
+                                    <select id="matSpecies"></select>
+                                </label>
+                                <label class="wide">
+                                    <span>Images</span>
+                                    <input id="matImages" type="file" multiple accept=".jpg,.jpeg,.png,.webp,.heic,.heif">
+                                </label>
+                            </div>
+
+                            <div class="section-title">Optional maturity fields</div>
+                            <div class="mat-form-grid">
+                                <label>
+                                    <span>Age (years)</span>
+                                    <input id="matAgeYears" type="number" min="0" step="0.01">
+                                </label>
+                                <label>
+                                    <span>Height (m)</span>
+                                    <input id="matHeightM" type="number" min="0" step="0.01">
+                                </label>
+                                <label>
+                                    <span>Annual rainfall (mm)</span>
+                                    <input id="matAnnualRainfallMm" type="number" min="0" step="0.01">
+                                </label>
+                                <label>
+                                    <span>Elevation (m)</span>
+                                    <input id="matElevationM" type="number" min="0" step="0.01">
+                                </label>
+                                <label>
+                                    <span>Stems per hectare</span>
+                                    <input id="matStemsPerHa" type="number" min="0" step="0.01">
+                                </label>
+                                <label>
+                                    <span>Climatic zone</span>
+                                    <select id="matClimaticZone"></select>
+                                </label>
+                                <label>
+                                    <span>Spacing</span>
+                                    <select id="matSpacing"></select>
+                                </label>
+                                <label>
+                                    <span>Site class</span>
+                                    <select id="matSiteClass"></select>
+                                </label>
+                                <label>
+                                    <span>Management intensity</span>
+                                    <select id="matManagementIntensity"></select>
+                                </label>
+                                <label>
+                                    <span>Intended product</span>
+                                    <select id="matIntendedProduct"></select>
+                                </label>
+                            </div>
+
+                            <div class="action-bar">
+                                <button id="matAddTree" type="button" class="btn btn-primary">Add Tree</button>
+                                <button id="matResetForm" type="button" class="btn btn-secondary">Reset Fields</button>
+                            </div>
+                        </section>
+
+                        <section class="mat-panel card">
+                            <div class="card-header">
+                                <h2>Tree Queue</h2>
+                                <div id="matQueueCount" class="count">0 trees</div>
+                            </div>
+                            <div class="mat-table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr><th>Tree</th><th>Species</th><th>Images</th><th>Optional fields</th></tr>
+                                    </thead>
+                                    <tbody id="matQueueBody">
+                                        <tr><td colspan="4" class="empty">No trees queued</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="action-bar">
+                                <button id="matRemoveLast" type="button" class="btn btn-secondary">Remove Last</button>
+                                <button id="matClearQueue" type="button" class="btn btn-secondary">Clear Queue</button>
+                                <button id="matRunAll" type="button" class="btn btn-primary">Run All Trees</button>
+                            </div>
+                            <div class="stepper hidden" id="matMultipleStepper">
+                                <div class="stepper-step" id="matMultipleStep1"><span class="stepper-num">1</span>Segment trunks</div>
+                                <span class="stepper-arrow">&rarr;</span>
+                                <div class="stepper-step" id="matMultipleStep2"><span class="stepper-num">2</span>Measure DBH</div>
+                                <span class="stepper-arrow">&rarr;</span>
+                                <div class="stepper-step" id="matMultipleStep3"><span class="stepper-num">3</span>Predict maturity</div>
+                            </div>
+                            <div id="matStatus" class="mat-status">Ready</div>
+                        </section>
+                    </div>
+
+                    <section class="mat-results">
+                        <div class="card-header">
+                            <h2>Results</h2>
+                            <a id="matZipLink" class="download hidden" href="#" download>Download ZIP</a>
+                        </div>
+                        <div id="matResultCards" class="result-cards"></div>
+                        <div class="mat-table-wrap">
+                            <table>
+                                <thead id="matSummaryHead"></thead>
+                                <tbody id="matSummaryBody"><tr><td class="empty">No results yet</td></tr></tbody>
+                            </table>
+                        </div>
+                        <div class="gallery-block">
+                            <h3>Segmentation</h3>
+                            <div id="matOverlayGallery" class="gallery"></div>
+                        </div>
+                        <div class="gallery-block">
+                            <h3>DBH Measurement Rows</h3>
+                            <div id="matMeasurementGallery" class="gallery"></div>
+                        </div>
+                        <div class="gallery-block">
+                            <h3>Maturity Curve</h3>
+                            <div id="matMaturityGallery" class="gallery"></div>
+                        </div>
+                        <details class="log-block">
+                            <summary>Processing Log</summary>
+                            <pre id="matLogOutput"></pre>
+                        </details>
+                    </section>
+                </div>
+            </section>
+
+            <!-- Timber Grading Panel: fully independent module (own models, own session
+                 state) - not fed by, and never feeds into, the tree species/maturity pipeline. -->
+            <section class="hidden" id="timberPanel">
+                <section class="card upload-section">
+                    <div class="card-header">
+                        <h2>Upload Timber Photos</h2>
+                        <p>Upload one or more photos of cut timber log faces. Each accepted cut face is detected, cropped, and prepared for grading.</p>
+                    </div>
+
+                    <div class="dropzone" id="timberDropzone">
+                        <input type="file" id="timberImageInput" accept=".jpg,.jpeg,.png,.webp" multiple hidden>
+                        <div class="dropzone-prompt" id="timberDropzonePrompt">
+                            <div class="upload-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            </div>
+                            <p class="dropzone-text"><strong>Drag and drop timber photos here</strong> or click to browse</p>
+                            <span class="file-limits">Supported formats: JPEG, PNG, WEBP &middot; multiple files allowed &middot; Max 20MB each</span>
+                            <button type="button" class="btn btn-secondary" id="timberBrowseBtn">Choose Photos</button>
+                        </div>
+
+                        <div class="preview-container hidden" id="timberPreviewContainer">
+                            <div id="timberFileList" class="timber-file-list"></div>
+                        </div>
+                    </div>
+
+                    <div class="action-bar">
+                        <button type="button" class="btn btn-primary" id="timberDetectBtn" disabled>Detect Crops</button>
+                    </div>
+                    <div class="stepper hidden" id="timberDetectStepper">
+                        <div class="stepper-step" id="timberDetectStep1"><span class="stepper-num">1</span>Detect cut faces</div>
+                        <span class="stepper-arrow">&rarr;</span>
+                        <div class="stepper-step" id="timberDetectStep2"><span class="stepper-num">2</span>Filter by quality</div>
+                        <span class="stepper-arrow">&rarr;</span>
+                        <div class="stepper-step" id="timberDetectStep3"><span class="stepper-num">3</span>Crop accepted faces</div>
+                    </div>
+                    <div id="timberDetectStatus" class="mat-status">Ready</div>
+                </section>
+
+                <div id="timberDetectionResults" class="trees-list-container"></div>
+
+                <section class="card hidden" id="timberGradeCard">
+                    <div class="card-header">
+                        <h2>Grade Crops</h2>
+                        <p>Enter Length (m) and Mid Girth (m) for each crop you want graded &mdash; Volume is computed automatically. Remove any crop you don't want graded.</p>
+                    </div>
+                    <div class="action-bar">
+                        <button type="button" class="btn btn-primary" id="timberGradeBtn">Grade Crops</button>
+                    </div>
+                    <div class="stepper hidden" id="timberGradeStepper">
+                        <div class="stepper-step" id="timberGradeStep1"><span class="stepper-num">1</span>Preprocess crops</div>
+                        <span class="stepper-arrow">&rarr;</span>
+                        <div class="stepper-step" id="timberGradeStep2"><span class="stepper-num">2</span>Scale measurements</div>
+                        <span class="stepper-arrow">&rarr;</span>
+                        <div class="stepper-step" id="timberGradeStep3"><span class="stepper-num">3</span>Run fusion grading</div>
+                    </div>
+                    <div id="timberGradeStatus" class="mat-status">Ready</div>
+                </section>
+            </section>
+
+            <!-- Grading + Bid Price Panel: UI-layer bridge only - reads graded crops that
+                 Timber Grading already produced via window.timberGradedCrops, then reuses
+                 the same Auction Bid Price form/backend as the standalone tab. -->
+            <section class="hidden" id="gradingBidPanel">
+                <section class="card">
+                    <div class="card-header">
+                        <h2>Grading + Bid Price</h2>
+                        <p>Grade a photo in the <strong>Timber Grading</strong> tab first, then pick a graded crop below to prefill its measured dimensions and grade into the bid price estimator. Every prefilled field stays editable before you submit. Volume is the single biggest driver of the price estimate &mdash; enter the whole log's length/mid-girth when grading, not just the cropped face, for a representative result.</p>
+                    </div>
+                    <div id="gbCropPicker" class="trees-list-container">
+                        <p style="color: var(--text-secondary);">No graded crops yet. Switch to the Timber Grading tab, detect and grade a photo, then come back here.</p>
+                    </div>
+                </section>
+                <div id="gbFormContainer"></div>
+                <div id="gbResultsContainer"></div>
+            </section>
+
+            <!-- Auction Bid Price Panel: standalone valuation form, independent module. -->
+            <section class="hidden" id="auctionPanel">
+                <div id="auFormContainer"></div>
+                <div id="auResultsContainer"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Multi-Candidate Identification Process Modal -->
+    <div class="modal-backdrop hidden" id="processModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <h3 id="modalTitle">Tree 1 — View Identification Process</h3>
+                    <p id="modalSubtitle">Complete multi-candidate open-set evaluation breakdown</p>
+                </div>
+                <button type="button" class="btn-icon" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Multi-Candidate breakdown rendered via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/timber.js"></script>
+    <script src="/static/js/auction.js"></script>
+</body>
+</html>

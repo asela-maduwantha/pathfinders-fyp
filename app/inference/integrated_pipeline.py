@@ -21,6 +21,7 @@ from app.config import (
     TREE_NMS_IOU,
     TREE_IOU,
     TREE_MAX_DET,
+    TREE_MIN_CONFIDENCE_FOR_CLASSIFICATION,
     DEBUG_TREE_DETECTION,
     DEBUG_ASSESSABILITY,
     DEBUG_TREE_FILTERING
@@ -116,6 +117,12 @@ class IntegratedPipeline:
             iou=TREE_NMS_IOU,
             max_det=TREE_MAX_DET
         )
+
+        # Only trunks detected with enough confidence get shown and proceed to
+        # classification - low-confidence proposals are dropped here.
+        raw_detections = [
+            d for d in raw_detections if d["confidence"] > TREE_MIN_CONFIDENCE_FOR_CLASSIFICATION
+        ]
         num_trees = len(raw_detections)
 
         # Debug outputs: save debug_raw_yolo.jpg and debug_after_duplicates.jpg

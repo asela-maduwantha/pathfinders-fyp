@@ -24,7 +24,8 @@ from app.config import (
     TREE_IMGSZ,
     TREE_CONFIDENCE,
     TREE_IOU,
-    TREE_MAX_DET
+    TREE_MAX_DET,
+    TREE_MIN_CONFIDENCE_FOR_CLASSIFICATION
 )
 from app.inference.tree_detector import TreeDetector
 from app.inference.raglo_classifier import RAGLOClassifier
@@ -273,6 +274,12 @@ async def analyze_tree_detector(file: UploadFile = File(...)):
             iou=TREE_IOU,
             max_det=TREE_MAX_DET
         )
+
+    # Only trunks detected with enough confidence are shown here (and, in the
+    # combined pipeline, proceed to classification).
+    raw_detections = [
+        d for d in raw_detections if d["confidence"] > TREE_MIN_CONFIDENCE_FOR_CLASSIFICATION
+    ]
 
     from app.inference.assessability import assess_trunk_visibility
     from app.utils.visualization import draw_annotated_results

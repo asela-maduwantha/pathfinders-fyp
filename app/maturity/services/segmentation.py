@@ -61,6 +61,41 @@ def run_trunk_detection(
         return run_yolo_world_detection(image_records, device, log)
     return run_grounding_dino(image_records, device, log)
 
+
+def build_detections_from_module1(
+    image_records: dict[str, dict],
+    external_detections_by_tree: dict[str, dict],
+    log: Callable[[str], None],
+) -> dict[str, dict]:
+    """
+    Skips Module 2's own independent trunk re-detection (used only by the full
+    "Detection + Classification + Maturity Assessment" pipeline): converts the
+    bounding box Module 1 already detected and classified into the same
+    {image_key: {"box", "method", "confidence"}} shape run_trunk_detection
+    would have produced, so the rest of the pipeline (segmentation onward) is
+    guaranteed to measure the exact same tree Module 1 identified, instead of
+    Module 2's own open-vocabulary detector possibly picking a different one.
+    """
+    detections: dict[str, dict] = {}
+    for image_key, record in image_records.items():
+        external = external_detections_by_tree[record["tree_id"]]
+        scale = record["resize_scale"]
+        original_box = external["bbox"]
+        processing_box = [float(v) * scale for v in original_box]
+        padded_box = expand_box(processing_box, record["width"], record["height"])
+
+        detections[image_key] = {
+            "box": padded_box,
+            "method": "module1_handoff",
+            "confidence": float(external.get("confidence", float("nan"))),
+        }
+        log(
+            f"Reusing Module 1's detected trunk for {record['tree_id']} "
+            f"(bbox={[round(v, 1) for v in padded_box]}) instead of re-detecting"
+        )
+    return detections
+
+
 def get_grounding_dino_model(device: torch.device, log: Callable[[str], None]) -> tuple[object, object]:
     cache_key = (DINO_ID, str(device))
     cached = _DINO_CACHE.get(cache_key)

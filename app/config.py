@@ -33,6 +33,12 @@ TREE_NMS_IOU = 0.70
 TREE_IOU = 0.70
 TREE_MAX_DET = 300
 
+# Minimum detection confidence required for a trunk to be shown in Tree Detection
+# results and to proceed onward into classification. Kept separate from
+# TREE_PROPOSAL_CONF/TREE_CONFIDENCE above (which stay low so the model still
+# generates enough raw candidates to filter down from).
+TREE_MIN_CONFIDENCE_FOR_CLASSIFICATION = 0.55
+
 # Prominent Foreground Trunk Protection Thresholds
 PROMINENT_MIN_WIDTH_RATIO = 0.08
 PROMINENT_MIN_HEIGHT_RATIO = 0.40

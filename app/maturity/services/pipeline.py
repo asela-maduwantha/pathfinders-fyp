@@ -42,6 +42,7 @@ from app.maturity.services.image_io import (
 from app.maturity.services.maturity import get_maturity_predictor
 from app.maturity.services.runtime import log_elapsed, select_device
 from app.maturity.services.segmentation import (
+    build_detections_from_module1,
     detection_stage_label,
     run_trunk_detection,
     run_trunk_segmentation,
@@ -393,6 +394,7 @@ def save_maturity_plot(
 def run_merged_analysis(
     tree_inputs: list[dict[str, Any]],
     log: Callable[[str], None] | None = None,
+    external_detections_by_tree: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     log = log or _default_log
     total_started_at = perf_counter()
@@ -432,8 +434,12 @@ def run_merged_analysis(
     log(f"Images with focal EXIF metadata: {focal_count} of {len(image_records)}")
 
     stage_started_at = perf_counter()
-    detections = run_trunk_detection(image_records, device, log)
-    log_elapsed(log, detection_stage_label(), stage_started_at)
+    if external_detections_by_tree:
+        detections = build_detections_from_module1(image_records, external_detections_by_tree, log)
+        log_elapsed(log, "Reusing Module 1 trunk detection", stage_started_at)
+    else:
+        detections = run_trunk_detection(image_records, device, log)
+        log_elapsed(log, detection_stage_label(), stage_started_at)
 
     stage_started_at = perf_counter()
     trunk_masks, mask_df = run_trunk_segmentation(image_records, detections, folders, device, log)

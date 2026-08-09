@@ -105,12 +105,16 @@ def _build_maturity_response(result: dict[str, Any], log_lines: list[str]) -> di
     }
 
 
-def _run_merged_analysis_locked(tree_inputs: list[dict[str, Any]], log_lines: list[str]) -> dict[str, Any]:
+def _run_merged_analysis_locked(
+    tree_inputs: list[dict[str, Any]],
+    log_lines: list[str],
+    external_detections_by_tree: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     def log(message: str) -> None:
         log_lines.append(str(message))
 
     with INFERENCE_LOCK:
-        return run_merged_analysis(tree_inputs, log=log)
+        return run_merged_analysis(tree_inputs, log=log, external_detections_by_tree=external_detections_by_tree)
 
 
 # ---------------------------------------------------------------------------
@@ -372,18 +376,40 @@ async def maturity_analyze_auto(
         if value and value not in {"Blank", "Unknown"}:
             optional_inputs[field_name] = value
 
+    tree_id = f"Tree_{identified_tree['tree_id']:02d}"
     tree_inputs = [
         {
-            "tree_id": f"Tree_{identified_tree['tree_id']:02d}",
+            "tree_id": tree_id,
             "species": matched_species,
             "uploaded_items": [{"name": file.filename or "image.jpg", "content": file_bytes}],
             "optional_inputs": optional_inputs,
         }
     ]
 
+    # Reuse Module 1's already-detected and classified tree instead of letting
+    # Module 2 independently re-detect the trunk from scratch (which can
+    # occasionally lock onto a different tree when several are visible in the
+    # same photo). Falls back to Module 2's own detection if the bbox is ever
+    # missing/malformed - never worse than the previous behavior.
+    external_detections_by_tree: Optional[dict[str, dict[str, Any]]] = None
+    module1_bbox = identified_tree.get("detection", {}).get("bbox")
+    if (
+        isinstance(module1_bbox, list)
+        and len(module1_bbox) == 4
+        and all(isinstance(v, (int, float)) for v in module1_bbox)
+    ):
+        external_detections_by_tree = {
+            tree_id: {
+                "bbox": module1_bbox,
+                "confidence": identified_tree["detection"].get("confidence"),
+            }
+        }
+
     log_lines: list[str] = []
     try:
-        result = await run_in_threadpool(_run_merged_analysis_locked, tree_inputs, log_lines)
+        result = await run_in_threadpool(
+            _run_merged_analysis_locked, tree_inputs, log_lines, external_detections_by_tree
+        )
     except Exception as exc:
         raise HTTPException(
             status_code=500,

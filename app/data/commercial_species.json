@@ -3,24 +3,36 @@
     "commercial_flag": true,
     "status": "Commercial species",
     "category": "High-value timber species",
+    "scientific_name": "Tectona grandis",
+    "growing_regions": "Dry and low-intermediate zones, notably Kurunegala and Nuwara Eliya districts",
+    "typical_uses": "Boat building, furniture, veneer, exterior construction, and carving - valued for durability and termite/weather resistance",
     "note": "Preliminary species-based commercial indication only."
   },
   "mahogany": {
     "commercial_flag": true,
     "status": "Commercial species",
     "category": "Commercial timber species",
+    "scientific_name": "Swietenia macrophylla",
+    "growing_regions": "Wet and intermediate zones, with plantations concentrated around Kurunegala and Kegalle",
+    "typical_uses": "Furniture and high-end joinery - strong local and export demand",
     "note": "Preliminary species-based commercial indication only."
   },
   "pine": {
     "commercial_flag": true,
     "status": "Commercial species",
     "category": "Commercial plantation timber species",
+    "scientific_name": "Pinus caribaea (Caribbean Pine)",
+    "growing_regions": "Wet and intermediate zone hill country reforestation sites (e.g. Belihuloya), 100-2000m elevation",
+    "typical_uses": "Timber, pulpwood, and resin/turpentine production; originally planted for erosion control on degraded land",
     "note": "Preliminary species-based commercial indication only."
   },
   "rubber": {
     "commercial_flag": true,
     "status": "Commercial species",
     "category": "Commercial plantation species",
+    "scientific_name": "Hevea brasiliensis",
+    "growing_regions": "Traditionally the wet-zone rubber belt (Kalutara, Ratnapura, Kegalle, Kurunegala); newer plantings in the Northern dry zone since 2010",
+    "typical_uses": "Rubberwood harvested after the ~25-30 year latex-tapping cycle, used for furniture, chipboard, and MDF panel production",
     "note": "Preliminary species-based commercial indication only."
   }
 }

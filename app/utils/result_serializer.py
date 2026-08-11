@@ -86,6 +86,9 @@ def serialize_pipeline_results(
                 "commercial_flag": comm_info.get("commercial_flag"),
                 "status": comm_info.get("status", "Not evaluated"),
                 "category": comm_info.get("category", "N/A"),
+                "scientific_name": comm_info.get("scientific_name"),
+                "growing_regions": comm_info.get("growing_regions"),
+                "typical_uses": comm_info.get("typical_uses"),
                 "note": comm_info.get("note")
             },
 

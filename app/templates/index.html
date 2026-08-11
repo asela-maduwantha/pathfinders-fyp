@@ -3,100 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tree Detection, Classification &amp; Maturity Assessment</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Canopy Intelligence — Forestry Analysis Workspace</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=timber-ux-1">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Top Header -->
-        <header class="app-header">
-            <div class="header-brand">
+    <div class="app-shell">
+        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+        <!-- Sidebar: brand + grouped analysis mode navigation, ordered to match the
+             pipeline itself: single stages -> combined stages -> full end-to-end chain,
+             then the independent timber/auction modules. -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
                 <div class="header-icon">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8"/><path d="M5 12c-2.7-4.3.2-9.2 7-10 1 6.4-1.8 10-7 10Z"/><path d="M19 16c2.3-3.6-.1-7.7-5.8-8.4-.8 5.4 1.6 8.4 5.8 8.4Z"/></svg>
                 </div>
-                <div>
-                    <h1>Tree Species Identification System</h1>
-                    <p class="subtitle">Detection, Classification, and Maturity Assessment for Forest &amp; Plantation Trees</p>
+                <div class="brand-copy">
+                    <span class="brand-eyebrow">Pathfinders</span>
+                    <h1>Canopy</h1>
+                    <p class="subtitle">Forestry intelligence</p>
                 </div>
             </div>
-            <div class="badge-tag">
-                <span class="badge-dot"></span> Tree Detection, Classification &amp; Maturity Assessment
+
+            <nav class="sidebar-nav" aria-label="Analysis Mode Tabs">
+                <div class="nav-group">
+                    <span class="nav-group-title">Tree Pipeline</span>
+                    <button type="button" class="tab-btn" id="tabDetector" data-tab="detector">
+                        <span class="tab-step-badge">1</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <div class="tab-text">
+                            <span class="tab-title">Detect trees</span>
+                            <span class="tab-sub">Trunk detection &amp; segmentation</span>
+                        </div>
+                    </button>
+                    <button type="button" class="tab-btn" id="tabClassifier" data-tab="classifier">
+                        <span class="tab-step-badge">2</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                        <div class="tab-text">
+                            <span class="tab-title">Identify species</span>
+                            <span class="tab-sub">Bark-based species identification</span>
+                        </div>
+                    </button>
+                    <button type="button" class="tab-btn active" id="tabIntegrated" data-tab="integrated">
+                        <span class="tab-step-badge">3</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                        <div class="tab-text">
+                            <span class="tab-title">Forest inventory</span>
+                            <span class="tab-sub">Combined detection &amp; species pipeline</span>
+                        </div>
+                    </button>
+                    <button type="button" class="tab-btn" id="tabMaturity" data-tab="maturity">
+                        <span class="tab-step-badge">4</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-3-3L3 18"/></svg>
+                        <div class="tab-text">
+                            <span class="tab-title">Assess maturity</span>
+                            <span class="tab-sub">DBH &amp; maturity estimation &middot; accepts HEIC</span>
+                        </div>
+                    </button>
+                    <button type="button" class="tab-btn" id="tabAutoFlow" data-tab="autoflow">
+                        <span class="tab-step-badge">5</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        <div class="tab-text">
+                            <span class="tab-title">Complete assessment</span>
+                            <span class="tab-sub">Full end-to-end pipeline &middot; accepts HEIC</span>
+                        </div>
+                    </button>
+                </div>
+                <div class="nav-group">
+                    <span class="nav-group-title">Timber &amp; Market</span>
+                    <button type="button" class="tab-btn" id="tabTimber" data-tab="timber">
+                        <span class="tab-step-badge">6</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M5 8l7-6 7 6"/><rect x="4" y="8" width="16" height="12" rx="1"/></svg>
+                        <div class="tab-text">
+                            <span class="tab-title">Grade timber</span>
+                            <span class="tab-sub">Log cut-face detection &amp; quality grading</span>
+                        </div>
+                    </button>
+                    <button type="button" class="tab-btn" id="tabGradingBid" data-tab="grading-bid">
+                        <span class="tab-step-badge">7</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                        <div class="tab-text">
+                            <span class="tab-title">Grade &amp; value</span>
+                            <span class="tab-sub">Grade a photo, then estimate its auction value</span>
+                        </div>
+                    </button>
+                    <button type="button" class="tab-btn" id="tabAuction" data-tab="auction">
+                        <span class="tab-step-badge">8</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        <div class="tab-text">
+                            <span class="tab-title">Estimate value</span>
+                            <span class="tab-sub">Standalone bid price estimation</span>
+                        </div>
+                    </button>
+                </div>
+            </nav>
+
+            <div class="sidebar-badge">
+                <div class="sidebar-health">
+                    <span class="health-icon"><span class="badge-dot"></span></span>
+                    <div><strong>System operational</strong><small>All analysis models ready</small></div>
+                </div>
+                <span class="sidebar-version">Canopy workspace &middot; v1.0</span>
             </div>
-        </header>
+        </aside>
 
-        <!-- Analysis Mode Selection Tabs, ordered to match the pipeline itself:
-             single stages -> combined stages -> full end-to-end chain. -->
-        <nav class="mode-tabs-container" aria-label="Analysis Mode Tabs">
-            <button type="button" class="tab-btn" id="tabDetector" data-tab="detector">
-                <span class="tab-step-badge">1</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                <div class="tab-text">
-                    <span class="tab-title">Tree Detection</span>
-                    <span class="tab-sub">Trunk detection &amp; segmentation</span>
-                </div>
-            </button>
-            <button type="button" class="tab-btn" id="tabClassifier" data-tab="classifier">
-                <span class="tab-step-badge">2</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                <div class="tab-text">
-                    <span class="tab-title">Tree Classification</span>
-                    <span class="tab-sub">Bark-based species identification</span>
-                </div>
-            </button>
-            <button type="button" class="tab-btn active" id="tabIntegrated" data-tab="integrated">
-                <span class="tab-step-badge">3</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                <div class="tab-text">
-                    <span class="tab-title">Tree Detection + Classification</span>
-                    <span class="tab-sub">Combined detection &amp; species pipeline</span>
-                </div>
-            </button>
-            <button type="button" class="tab-btn" id="tabMaturity" data-tab="maturity">
-                <span class="tab-step-badge">4</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-3-3L3 18"/></svg>
-                <div class="tab-text">
-                    <span class="tab-title">Maturity Assessment</span>
-                    <span class="tab-sub">DBH &amp; maturity estimation &middot; accepts HEIC</span>
-                </div>
-            </button>
-            <button type="button" class="tab-btn" id="tabAutoFlow" data-tab="autoflow">
-                <span class="tab-step-badge">5</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                <div class="tab-text">
-                    <span class="tab-title">Tree Detection + Classification + Maturity Assessment</span>
-                    <span class="tab-sub">Full end-to-end pipeline &middot; accepts HEIC</span>
-                </div>
-            </button>
-            <button type="button" class="tab-btn" id="tabTimber" data-tab="timber">
-                <span class="tab-step-badge">6</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M5 8l7-6 7 6"/><rect x="4" y="8" width="16" height="12" rx="1"/></svg>
-                <div class="tab-text">
-                    <span class="tab-title">Timber Grading</span>
-                    <span class="tab-sub">Log cut-face detection &amp; quality grading</span>
-                </div>
-            </button>
-            <button type="button" class="tab-btn" id="tabGradingBid" data-tab="grading-bid">
-                <span class="tab-step-badge">7</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                <div class="tab-text">
-                    <span class="tab-title">Grading + Bid Price</span>
-                    <span class="tab-sub">Grade a photo, then estimate its auction value</span>
-                </div>
-            </button>
-            <button type="button" class="tab-btn" id="tabAuction" data-tab="auction">
-                <span class="tab-step-badge">8</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                <div class="tab-text">
-                    <span class="tab-title">Auction Bid Price</span>
-                    <span class="tab-sub">Standalone bid price estimation</span>
-                </div>
-            </button>
-        </nav>
+        <div class="app-main">
+            <header class="topbar">
+                <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu" aria-expanded="false">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <div class="topbar-copy"><span class="topbar-eyebrow">Analysis workspace</span><span class="topbar-title" id="topbarTitle">Forest inventory</span></div>
+                <div class="system-status"><span class="status-pulse"></span>Models ready</div>
+            </header>
 
+        <div class="app-container">
         <main class="main-content">
+            <section class="workspace-intro" aria-labelledby="workspaceTitle">
+                <div>
+                    <span class="workspace-kicker" id="workspaceKicker">Inventory intelligence</span>
+                    <h2 id="workspaceTitle">Understand every tree in the frame.</h2>
+                    <p id="workspaceDescription">Detect trunks, identify species, and turn field imagery into a clear, reviewable forest inventory.</p>
+                </div>
+                <div class="workspace-meta"><span>01</span><p>Choose a clear image<br><strong>Results stay in this workspace</strong></p></div>
+            </section>
             <!-- Shared Upload Card (Tree Detection, Tree Classification, Tree Detection + Classification, Full Pipeline) -->
             <section class="card upload-section" id="uploadCard">
                 <div class="card-header">
@@ -135,13 +163,26 @@
                 </div>
             </section>
 
+            <section class="card compact-progress-card hidden" id="quickAnalysisProgress" aria-live="polite">
+                <div class="compact-progress-heading"><span id="quickProgressLabel">Analyzing image</span><strong id="quickProgressPercent">10%</strong></div>
+                <div class="compact-progress-track"><span id="quickProgressFill"></span></div>
+                <p id="quickProgressMessage">Preparing the analysis pipeline...</p>
+            </section>
+
             <!-- Auto-Flow Optional Maturity Fields (shown only in the full pipeline tab) -->
-            <section class="card maturity-module hidden" id="autoFlowOptionalCard">
-                <div class="card-header">
-                    <h2>Optional Maturity Fields</h2>
-                    <p>These refine the maturity estimate. All fields are optional &mdash; leave blank if unknown.</p>
-                </div>
-                <div class="mat-form-grid">
+            <section class="card maturity-module optional-fields-card hidden" id="autoFlowOptionalCard">
+                <button type="button" class="optional-fields-toggle" id="optionalFieldsToggle" aria-expanded="false" aria-controls="optionalFieldsContent">
+                    <span class="optional-fields-heading">
+                        <span class="optional-fields-icon" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+                        </span>
+                        <span><strong>Optional Maturity Fields</strong><small>These refine the maturity estimate. Leave blank if unknown.</small></span>
+                    </span>
+                    <span class="optional-fields-action"><span class="toggle-label">Expand</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
+                </button>
+                <div class="optional-fields-collapse" id="optionalFieldsContent">
+                  <div class="optional-fields-inner">
+                    <div class="mat-form-grid">
                     <label>
                         <span>Age (years)</span>
                         <input id="autoFlowAgeYears" type="number" min="0" step="0.01">
@@ -182,6 +223,8 @@
                         <span>Intended product</span>
                         <select id="autoFlowIntendedProduct"></select>
                     </label>
+                    </div>
+                  </div>
                 </div>
             </section>
 
@@ -189,7 +232,7 @@
             <section class="card timeline-card hidden" id="timelineCard">
                 <div class="card-header">
                     <h2>Real-Time Process Monitoring</h2>
-                    <p>Live execution progress across every stage of the detection + classification pipeline.</p>
+                    <p>Follow the analysis from image validation to final results.</p>
                 </div>
                 <div class="timeline-container" id="timelineContainer">
                     <!-- Stages generated dynamically via JS -->
@@ -336,6 +379,7 @@
                             <span class="h-value" id="clfUnknownScore">0.000</span>
                         </div>
                     </div>
+                    <div id="clfSpeciesProfile"></div>
                 </div>
 
                 <div class="two-column-grid">
@@ -398,33 +442,43 @@
                             <span class="h-value" id="autoFlowCommercial">-</span>
                         </div>
                     </div>
+                    <div id="autoFlowSpeciesProfile"></div>
                 </div>
 
                 <div class="card mat-panel hidden" id="autoFlowUnresolvedCard">
                     <p id="autoFlowUnresolvedMessage"></p>
                 </div>
 
-                <div id="autoFlowMaturitySection" class="hidden">
-                    <div class="card-header">
-                        <h2>DBH &amp; Maturity Estimation</h2>
-                        <p>Trunk segmentation, monocular depth, cylinder DBH, and maturity estimation &mdash; run automatically using the identified species.</p>
+                <div id="autoFlowMaturitySection" class="hidden maturity-outcome-section">
+                    <div class="maturity-outcome-header">
+                        <div class="maturity-outcome-title">
+                            <span class="maturity-title-icon" aria-hidden="true">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M7 21h10M8 8h8M6 12h12M5 16h14"/></svg>
+                            </span>
+                            <div><span class="maturity-eyebrow">Growth analysis</span><h2>DBH &amp; Maturity Estimation</h2><p>Physical trunk measurements and harvest-readiness insights generated from the identified species.</p></div>
+                        </div>
+                        <div class="maturity-methods" aria-label="Analysis methods">
+                            <span><b>01</b> Segment trunk</span><i></i><span><b>02</b> Estimate depth</span><i></i><span><b>03</b> Measure DBH</span><i></i><span><b>04</b> Assess maturity</span>
+                        </div>
                     </div>
                     <div id="autoFlowResultCards" class="result-cards"></div>
 
-                    <div class="gallery-block">
-                        <h3>Segmentation</h3>
-                        <div id="autoFlowOverlayGallery" class="gallery"></div>
-                    </div>
-                    <div class="gallery-block">
-                        <h3>DBH Measurement Rows</h3>
-                        <div id="autoFlowMeasurementGallery" class="gallery"></div>
-                    </div>
-                    <div class="gallery-block">
-                        <h3>Maturity Curve</h3>
-                        <div id="autoFlowMaturityGallery" class="gallery"></div>
+                    <div class="maturity-artifacts-grid">
+                        <div class="gallery-block">
+                            <div class="artifact-heading"><span>01</span><div><h3>Trunk segmentation</h3><p>Isolated trunk geometry</p></div></div>
+                            <div id="autoFlowOverlayGallery" class="gallery"></div>
+                        </div>
+                        <div class="gallery-block">
+                            <div class="artifact-heading"><span>02</span><div><h3>DBH measurements</h3><p>Cylinder measurement rows</p></div></div>
+                            <div id="autoFlowMeasurementGallery" class="gallery"></div>
+                        </div>
+                        <div class="gallery-block">
+                            <div class="artifact-heading"><span>03</span><div><h3>Maturity curve</h3><p>Growth position and outlook</p></div></div>
+                            <div id="autoFlowMaturityGallery" class="gallery"></div>
+                        </div>
                     </div>
 
-                    <a id="autoFlowZipLink" class="download hidden" href="#" download>Download ZIP</a>
+                    <a id="autoFlowZipLink" class="download hidden" href="#" download>Download complete analysis package</a>
                     <details class="log-block">
                         <summary>Processing Log</summary>
                         <pre id="autoFlowLogOutput"></pre>
@@ -738,16 +792,17 @@
                  Timber Grading already produced via window.timberGradedCrops, then reuses
                  the same Auction Bid Price form/backend as the standalone tab. -->
             <section class="hidden" id="gradingBidPanel">
-                <section class="card">
-                    <div class="card-header">
-                        <h2>Grading + Bid Price</h2>
-                        <p>Grade a photo in the <strong>Timber Grading</strong> tab first, then pick a graded crop below to prefill its measured dimensions and grade into the bid price estimator. Every prefilled field stays editable before you submit. Volume is the single biggest driver of the price estimate &mdash; enter the whole log's length/mid-girth when grading, not just the cropped face, for a representative result.</p>
+                <section class="card integrated-workflow-hero">
+                    <div>
+                        <span class="workspace-kicker">Integrated timber workflow</span>
+                        <h2>From timber photo to auction value.</h2>
+                        <p>Upload once, review detected log faces, add whole-log measurements, grade every selected log, and calculate auction estimates in one workspace.</p>
                     </div>
-                    <div id="gbCropPicker" class="trees-list-container">
-                        <p style="color: var(--text-secondary);">No graded crops yet. Switch to the Timber Grading tab, detect and grade a photo, then come back here.</p>
+                    <div class="workflow-stage-nav" id="gbStageNav" aria-label="Integrated workflow stages">
+                        <span class="active"><b>1</b>Upload</span><i></i><span><b>2</b>Measure</span><i></i><span><b>3</b>Grade</span><i></i><span><b>4</b>Value</span>
                     </div>
                 </section>
-                <div id="gbFormContainer"></div>
+                <div id="gbWorkflowContainer"></div>
                 <div id="gbResultsContainer"></div>
             </section>
 
@@ -757,11 +812,13 @@
                 <div id="auResultsContainer"></div>
             </section>
         </main>
+        </div>
+        </div>
     </div>
 
     <!-- Multi-Candidate Identification Process Modal -->
-    <div class="modal-backdrop hidden" id="processModal">
-        <div class="modal-card">
+    <div class="modal-backdrop hidden" id="processModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modalTitle">
+        <div class="modal-card" role="document">
             <div class="modal-header">
                 <div>
                     <h3 id="modalTitle">Tree 1 — View Identification Process</h3>
@@ -775,8 +832,8 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js"></script>
-    <script src="/static/js/timber.js"></script>
-    <script src="/static/js/auction.js"></script>
+    <script src="/static/js/app.js?v=timber-ux-1"></script>
+    <script src="/static/js/timber.js?v=timber-ux-1"></script>
+    <script src="/static/js/auction.js?v=timber-ux-1"></script>
 </body>
 </html>

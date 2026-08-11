@@ -19,6 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabAuction = document.getElementById('tabAuction');
     const tabButtons = [tabDetector, tabClassifier, tabIntegrated, tabMaturity, tabAutoFlow, tabTimber, tabGradingBid, tabAuction];
 
+    // App Shell Elements (sidebar nav + mobile off-canvas drawer)
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+    const topbarTitle = document.getElementById('topbarTitle');
+    const workspaceKicker = document.getElementById('workspaceKicker');
+    const workspaceTitle = document.getElementById('workspaceTitle');
+    const workspaceDescription = document.getElementById('workspaceDescription');
+
     // Upload Section Elements
     const uploadTitle = document.getElementById('uploadTitle');
     const uploadDesc = document.getElementById('uploadDesc');
@@ -34,6 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const removeImgBtn = document.getElementById('removeImgBtn');
     const analyzeBtn = document.getElementById('analyzeBtn');
     const analyzeBtnText = document.getElementById('analyzeBtnText');
+    const quickAnalysisProgress = document.getElementById('quickAnalysisProgress');
+    const quickProgressLabel = document.getElementById('quickProgressLabel');
+    const quickProgressPercent = document.getElementById('quickProgressPercent');
+    const quickProgressFill = document.getElementById('quickProgressFill');
+    const quickProgressMessage = document.getElementById('quickProgressMessage');
 
     // Timeline Elements (Tree Detection + Classification tab)
     const timelineCard = document.getElementById('timelineCard');
@@ -50,6 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Maturity Assessment Panel (merged Single Tree / Multiple Trees)
     const autoFlowOptionalCard = document.getElementById('autoFlowOptionalCard');
+    const optionalFieldsToggle = document.getElementById('optionalFieldsToggle');
+    const optionalFieldsContent = document.getElementById('optionalFieldsContent');
     const maturityPanel = document.getElementById('maturityPanel');
     const matModeSingleBtn = document.getElementById('matModeSingleBtn');
     const matModeMultipleBtn = document.getElementById('matModeMultipleBtn');
@@ -63,6 +79,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Auction Bid Price Panels (independent module - own forms, wired up in auction.js)
     const gradingBidPanel = document.getElementById('gradingBidPanel');
     const auctionPanel = document.getElementById('auctionPanel');
+
+    optionalFieldsToggle.addEventListener('click', () => {
+        const isExpanded = optionalFieldsToggle.getAttribute('aria-expanded') === 'true';
+        optionalFieldsToggle.setAttribute('aria-expanded', String(!isExpanded));
+        optionalFieldsContent.classList.toggle('expanded', !isExpanded);
+        optionalFieldsToggle.querySelector('.toggle-label').textContent = isExpanded ? 'Expand' : 'Collapse';
+    });
 
     // Integrated Mode Elements
     const summaryDetected = document.getElementById('summaryDetected');
@@ -87,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Classifier Mode Elements
     const clfDecisionBadge = document.getElementById('clfDecisionBadge');
     const clfSpeciesName = document.getElementById('clfSpeciesName');
+    const clfSpeciesProfile = document.getElementById('clfSpeciesProfile');
     const clfRawConf = document.getElementById('clfRawConf');
     const clfProtoDist = document.getElementById('clfProtoDist');
     const clfEnergy = document.getElementById('clfEnergy');
@@ -127,16 +151,60 @@ document.addEventListener('DOMContentLoaded', () => {
     const HEIC_ACCEPT = '.jpg,.jpeg,.png,.webp,.heic,.heif';
     const HEIC_ACCEPT_TEXT = 'Supported formats: JPEG, PNG, WEBP, HEIC, HEIF (Max 20MB) — EXIF orientation auto-corrected';
 
+    const MODE_CONTEXT = {
+        detector: ['Computer vision', 'Map the trees in your scene.', 'Locate, segment, and count visible trunks with confidence and spatial detail.'],
+        classifier: ['Species intelligence', 'Know the species behind the bark.', 'Compare visual evidence against known species while screening unfamiliar samples.'],
+        integrated: ['Inventory intelligence', 'Understand every tree in the frame.', 'Detect trunks, identify species, and turn field imagery into a clear, reviewable forest inventory.'],
+        maturity: ['Growth intelligence', 'Measure readiness with confidence.', 'Estimate DBH and maturity from field photos with optional site context for stronger results.'],
+        autoflow: ['End-to-end assessment', 'One image. The complete tree story.', 'Run detection, identification, and maturity assessment in one guided workflow.'],
+        timber: ['Quality intelligence', 'Turn cut faces into quality grades.', 'Detect timber sections and combine visual evidence with measurements for consistent grading.'],
+        'grading-bid': ['Commercial intelligence', 'Move from grade to market value.', 'Use graded timber evidence to prepare a transparent, editable bid estimate.'],
+        auction: ['Market intelligence', 'Price timber with better context.', 'Model an expected auction value from log quality, dimensions, and market conditions.'],
+    };
+
+    // Mobile Sidebar Drawer (below ~900px the sidebar becomes an off-canvas drawer
+    // toggled via the topbar hamburger button; above that it's an always-visible rail).
+    function openSidebar() {
+        sidebar.classList.add('open');
+        sidebarBackdrop.classList.add('open');
+        sidebarToggle.setAttribute('aria-expanded', 'true');
+    }
+    function closeSidebar() {
+        sidebar.classList.remove('open');
+        sidebarBackdrop.classList.remove('open');
+        sidebarToggle.setAttribute('aria-expanded', 'false');
+    }
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+        });
+    }
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener('click', closeSidebar);
+    }
+
     // Tab Switching Logic
     tabButtons.forEach(btn => {
         if (!btn) return;
         btn.addEventListener('click', () => {
             const mode = btn.dataset.tab;
+            closeSidebar();
             if (currentMode === mode) return;
+            quickAnalysisProgress.classList.add('hidden');
 
             currentMode = mode;
             tabButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            if (topbarTitle) {
+                const titleEl = btn.querySelector('.tab-title');
+                topbarTitle.textContent = titleEl ? titleEl.textContent : '';
+            }
+            const context = MODE_CONTEXT[mode];
+            if (context) {
+                workspaceKicker.textContent = context[0];
+                workspaceTitle.textContent = context[1];
+                workspaceDescription.textContent = context[2];
+            }
 
             // Hide all result wrappers
             timelineCard.classList.add('hidden');
@@ -199,6 +267,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function stepperStart(containerId, prefix, count) {
         const container = document.getElementById(containerId);
         if (container) container.classList.remove('hidden');
+        const progressHost = container && (container.matches('.stepper') ? container : container.querySelector('.stepper'));
+        if (progressHost) setCompactProgress(progressHost, 10, 'Analysis in progress');
         for (let i = 1; i <= count; i += 1) {
             const el = document.getElementById(`${prefix}${i}`);
             if (el) el.className = 'stepper-step active';
@@ -209,6 +279,42 @@ document.addEventListener('DOMContentLoaded', () => {
             const el = document.getElementById(`${prefix}${i}`);
             if (el) el.className = success ? 'stepper-step complete' : 'stepper-step';
         }
+        const firstStep = document.getElementById(`${prefix}1`);
+        const container = firstStep && firstStep.closest('.stepper');
+        if (container) setCompactProgress(container, success ? 100 : 0, success ? 'Analysis complete' : 'Analysis stopped', !success);
+    }
+
+    function setCompactProgress(container, percent, label, isError = false) {
+        let progress = container.querySelector('.embedded-progress');
+        if (!progress) {
+            progress = document.createElement('div');
+            progress.className = 'embedded-progress';
+            progress.innerHTML = '<div><span class="embedded-progress-label"></span><strong class="embedded-progress-percent"></strong></div><div class="compact-progress-track"><span></span></div>';
+            container.prepend(progress);
+        }
+        progress.classList.toggle('error', isError);
+        progress.classList.toggle('running', percent > 0 && percent < 100);
+        progress.querySelector('.embedded-progress-label').textContent = label;
+        progress.querySelector('.embedded-progress-percent').textContent = `${percent}%`;
+        progress.querySelector('.compact-progress-track span').style.width = `${percent}%`;
+    }
+
+    function quickProgressStart(label, message) {
+        quickAnalysisProgress.classList.remove('hidden', 'complete', 'error');
+        quickProgressLabel.textContent = label;
+        quickProgressMessage.textContent = message;
+        quickProgressPercent.textContent = '10%';
+        quickProgressFill.style.width = '10%';
+        quickProgressFill.classList.add('running');
+    }
+
+    function quickProgressFinish(success) {
+        quickAnalysisProgress.classList.toggle('complete', success);
+        quickAnalysisProgress.classList.toggle('error', !success);
+        quickProgressFill.classList.remove('running');
+        quickProgressFill.style.width = success ? '100%' : '0%';
+        quickProgressPercent.textContent = success ? '100%' : 'Stopped';
+        quickProgressMessage.textContent = success ? 'Analysis complete. Results are ready below.' : 'The analysis could not be completed.';
     }
 
     // File Drag and Drop Handlers
@@ -305,6 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsWrapperDetector.classList.add('hidden');
         resultsWrapperClassifier.classList.add('hidden');
         resultsWrapperAutoFlow.classList.add('hidden');
+        quickAnalysisProgress.classList.add('hidden');
     }
 
     // Main Analyze Click Event Listener
@@ -358,22 +465,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initTimeline() {
-        timelineContainer.innerHTML = '';
-        STAGE_NAMES.forEach((name, idx) => {
-            const stageNum = idx + 1;
-            const item = document.createElement('div');
-            item.className = 'timeline-item';
-            item.id = `timelineStage_${stageNum}`;
-
-            item.innerHTML = `
-                <div class="stage-num">${stageNum}</div>
-                <div class="stage-details">
-                    <span class="stage-title">${name}</span>
-                    <span class="stage-desc" id="stageDesc_${stageNum}">Waiting...</span>
+        timelineContainer.innerHTML = `
+            <div class="pipeline-progress" role="progressbar" aria-label="Analysis progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="progress-heading">
+                    <span id="timelineProgressCount">Stage 1 of ${STAGE_NAMES.length}</span>
+                    <strong id="timelineProgressPercent">0%</strong>
                 </div>
-            `;
-            timelineContainer.appendChild(item);
-        });
+                <div class="progress-track">
+                    <div class="progress-fill" id="timelineProgressFill"></div>
+                </div>
+            </div>
+            <div class="current-stage active" id="timelineCurrentStage" aria-live="polite">
+                <div class="current-stage-icon"><span></span></div>
+                <div class="current-stage-copy">
+                    <span class="current-stage-label">Current stage</span>
+                    <strong id="timelineCurrentTitle">${STAGE_NAMES[0]}</strong>
+                    <p id="timelineCurrentMessage">Preparing analysis...</p>
+                </div>
+            </div>
+        `;
     }
 
     async function pollJobStatus(jobId) {
@@ -384,31 +494,29 @@ document.addEventListener('DOMContentLoaded', () => {
             const job = await resp.json();
             const currentStage = job.stage_index;
 
-            STAGE_NAMES.forEach((_, idx) => {
-                const sNum = idx + 1;
-                const el = document.getElementById(`timelineStage_${sNum}`);
-                const descEl = document.getElementById(`stageDesc_${sNum}`);
-                if (!el || !descEl) return;
+            const safeStage = Math.max(1, Math.min(Number(currentStage) || 1, STAGE_NAMES.length));
+            const progress = job.status === 'completed'
+                ? 100
+                : Math.min(95, (safeStage / STAGE_NAMES.length) * 100);
+            const progressBar = timelineContainer.querySelector('.pipeline-progress');
+            const progressFill = document.getElementById('timelineProgressFill');
+            const progressCount = document.getElementById('timelineProgressCount');
+            const progressPercent = document.getElementById('timelineProgressPercent');
+            const currentStageCard = document.getElementById('timelineCurrentStage');
+            const currentTitle = document.getElementById('timelineCurrentTitle');
+            const currentMessage = document.getElementById('timelineCurrentMessage');
 
-                if (sNum < currentStage) {
-                    el.className = 'timeline-item completed';
-                    descEl.textContent = 'Completed';
-                } else if (sNum === currentStage) {
-                    if (job.status === 'completed') {
-                        el.className = 'timeline-item completed';
-                        descEl.textContent = 'Completed';
-                    } else if (job.status === 'error') {
-                        el.className = 'timeline-item error';
-                        descEl.textContent = job.message;
-                    } else {
-                        el.className = 'timeline-item active';
-                        descEl.textContent = job.message || 'Processing...';
-                    }
-                } else {
-                    el.className = 'timeline-item';
-                    descEl.textContent = 'Waiting...';
-                }
-            });
+            progressFill.style.width = `${progress}%`;
+            const roundedProgress = Math.round(progress);
+            progressBar.setAttribute('aria-valuenow', String(roundedProgress));
+            progressPercent.textContent = `${roundedProgress}%`;
+            progressCount.textContent = job.status === 'completed'
+                ? `All ${STAGE_NAMES.length} stages complete`
+                : `Stage ${safeStage} of ${STAGE_NAMES.length}`;
+            currentTitle.textContent = job.status === 'completed' ? 'Analysis complete' : STAGE_NAMES[safeStage - 1];
+            currentMessage.textContent = job.status === 'completed' ? 'Results are ready to review.' : (job.message || 'Processing...');
+            currentStageCard.className = `current-stage ${job.status === 'error' ? 'error' : job.status === 'completed' ? 'completed' : 'active'}`;
+
 
             if (job.status === 'completed') {
                 clearInterval(pollInterval);
@@ -460,9 +568,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        trees.forEach(tree => {
+        trees.forEach((tree, treeIdx) => {
             const card = document.createElement('div');
-            card.className = 'card tree-card';
+            card.className = 'card tree-card fade-in-up';
+            card.style.animationDelay = `${treeIdx * 50}ms`;
 
             let statusBadgeClass = 'badge-success';
             let statusText = tree.raglo.final_species ? formatSpeciesName(tree.raglo.final_species) : 'Identified';
@@ -482,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const consensus = tree.raglo.consensus || {};
-            const consensusStr = consensus.known_votes !== undefined ? 
+            const consensusStr = consensus.known_votes !== undefined ?
                 `${consensus.known_votes} / ${consensus.candidate_count} known candidates agreed` : 'N/A';
 
             const comm = tree.commercial || {};
@@ -520,28 +629,33 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="val">${commStr}</span>
                         </div>
                     </div>
+                    ${renderSpeciesProfile(tree.raglo.final_species, comm)}
                 </div>
                 <div class="tree-card-footer">
-                    <button type="button" class="btn btn-secondary btn-sm inspect-btn" data-tree-id="${tree.tree_id}">
-                        View Identification Process &rarr;
+                    <button type="button" class="btn btn-secondary inspect-btn" data-tree-id="${tree.tree_id}" aria-label="View identification process for ${tree.display_name}">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <span>View identification process</span>
+                        <span aria-hidden="true">&rarr;</span>
                     </button>
                 </div>
             `;
             treesListContainer.appendChild(card);
         });
-
-        document.querySelectorAll('.inspect-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const tId = parseInt(e.currentTarget.dataset.treeId);
-                openProcessModal(tId);
-            });
-        });
     }
+
+    // Delegation keeps the action available when result cards are replaced or rerendered.
+    treesListContainer.addEventListener('click', (event) => {
+        const button = event.target.closest('.inspect-btn');
+        if (!button || !treesListContainer.contains(button)) return;
+        const rawTreeId = button.dataset.treeId;
+        const numericTreeId = Number(rawTreeId);
+        openProcessModal(Number.isNaN(numericTreeId) ? rawTreeId : numericTreeId);
+    });
 
     // Section 26 & 27: Expandable Multi-Candidate Process View
     function openProcessModal(treeId) {
         if (!currentResultsData) return;
-        const tree = currentResultsData.trees.find(t => t.tree_id === treeId);
+        const tree = currentResultsData.trees.find(t => String(t.tree_id) === String(treeId));
         if (!tree) return;
 
         modalTitle.textContent = `${tree.display_name} — View Identification Process`;
@@ -662,11 +776,42 @@ document.addEventListener('DOMContentLoaded', () => {
         flowContainer.innerHTML = flowHtml || '<p>No intermediate process artifacts available for this tree.</p>';
         modalBody.appendChild(flowContainer);
 
-        processModal.classList.remove('hidden');
+        openModal();
     }
 
-    closeModalBtn.addEventListener('click', () => {
-        processModal.classList.add('hidden');
+    function openModal() {
+        processModal.classList.remove('hidden');
+        processModal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+        // Force the initial opacity state to render before applying the open state.
+        void processModal.offsetWidth;
+        processModal.classList.add('open');
+        closeModalBtn.focus();
+    }
+
+    function closeModal() {
+        processModal.classList.remove('open');
+        processModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+        const onTransitionEnd = (e) => {
+            if (e.target !== processModal) return;
+            processModal.classList.add('hidden');
+            processModal.removeEventListener('transitionend', onTransitionEnd);
+        };
+        processModal.addEventListener('transitionend', onTransitionEnd);
+        // Fallback in case transitionend doesn't fire (e.g. reduced-motion 0-duration).
+        // Guarded so a quick reopen within the window isn't hidden again afterward.
+        setTimeout(() => {
+            if (!processModal.classList.contains('open')) processModal.classList.add('hidden');
+        }, 300);
+    }
+
+    closeModalBtn.addEventListener('click', closeModal);
+    processModal.addEventListener('click', (e) => {
+        if (e.target === processModal) closeModal();
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && processModal.classList.contains('open')) closeModal();
     });
 
     // 2. Tree Detector Only Execution Mode
@@ -674,6 +819,7 @@ document.addEventListener('DOMContentLoaded', () => {
         analyzeBtn.disabled = true;
         analyzeBtnText.textContent = "Detecting Tree Trunks...";
         resultsWrapperDetector.classList.add('hidden');
+        quickProgressStart('Detecting tree trunks', 'Running segmentation and spatial measurements...');
 
         const formData = new FormData();
         formData.append('file', selectedFile);
@@ -702,9 +848,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.trees.length === 0) {
                 detectorListContainer.innerHTML = '<p style="color: var(--text-secondary);">No tree trunks detected in image.</p>';
             } else {
-                data.trees.forEach(tree => {
+                data.trees.forEach((tree, treeIdx) => {
                     const card = document.createElement('div');
-                    card.className = 'card tree-card';
+                    card.className = 'card tree-card fade-in-up';
+                    card.style.animationDelay = `${treeIdx * 50}ms`;
                     card.innerHTML = `
                         <div class="tree-card-header">
                             <span class="tree-name">${tree.display_name}</span>
@@ -735,7 +882,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             resultsWrapperDetector.classList.remove('hidden');
+            quickProgressFinish(true);
         } catch (err) {
+            quickProgressFinish(false);
             alert(`Detector error: ${err.message}`);
         } finally {
             analyzeBtn.disabled = false;
@@ -748,6 +897,7 @@ document.addEventListener('DOMContentLoaded', () => {
         analyzeBtn.disabled = true;
         analyzeBtnText.textContent = "Classifying Bark Species...";
         resultsWrapperClassifier.classList.add('hidden');
+        quickProgressStart('Identifying tree species', 'Preparing bark evidence and running open-set classification...');
 
         const formData = new FormData();
         formData.append('file', selectedFile);
@@ -773,10 +923,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 clfDecisionBadge.textContent = "OPEN-SET REJECTED";
                 clfDecisionBadge.className = "status-badge open_set_rejected";
                 clfSpeciesName.textContent = "Unknown / Unrecognized species";
+                clfSpeciesProfile.innerHTML = '';
             } else {
                 clfDecisionBadge.textContent = "KNOWN SPECIES";
                 clfDecisionBadge.className = "status-badge known";
                 clfSpeciesName.textContent = formatSpeciesName(res.final_species);
+                clfSpeciesProfile.innerHTML = renderSpeciesProfile(res.final_species, null);
             }
 
             clfRawConf.textContent = `${(res.classification.raw_confidence * 100).toFixed(1)}%`;
@@ -809,7 +961,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.attention && res.attention.attention_weights) {
                 res.attention.attention_weights.forEach((w, idx) => {
                     const card = document.createElement('div');
-                    card.className = 'attention-card';
+                    card.className = 'attention-card fade-in-up';
+                    card.style.animationDelay = `${idx * 40}ms`;
                     card.innerHTML = `
                         <div class="att-title">Patch ${idx + 1} Weight</div>
                         <div class="att-value">${(w * 100).toFixed(1)}%</div>
@@ -837,7 +990,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             resultsWrapperClassifier.classList.remove('hidden');
+            quickProgressFinish(true);
         } catch (err) {
+            quickProgressFinish(false);
             alert(`Classifier error: ${err.message}`);
         } finally {
             analyzeBtn.disabled = false;
@@ -849,11 +1004,66 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!name) return 'Unknown';
         const map = {
             'mahogany': 'Mahogany (Swietenia macrophylla)',
-            'pine': 'Pine (Pinus spp.)',
+            'pine': 'Pine (Pinus caribaea)',
             'rubber': 'Rubber (Hevea brasiliensis)',
             'teak': 'Teak (Tectona grandis)'
         };
         return map[name.toLowerCase()] || name;
+    }
+
+    // Sri Lanka-specific species facts, used wherever a classification result is
+    // shown but no backend "commercial" data is available for that surface
+    // (e.g. the standalone Tree Classification tab, which doesn't run the
+    // Integrated Pipeline's commercial-flagging stage). Mirrors
+    // app/data/commercial_species.json's scientific_name/growing_regions/
+    // typical_uses fields for the same 4 species.
+    const SPECIES_INFO = {
+        'teak': {
+            scientific_name: 'Tectona grandis',
+            growing_regions: 'Dry and low-intermediate zones, notably Kurunegala and Nuwara Eliya districts',
+            typical_uses: 'Boat building, furniture, veneer, exterior construction, and carving — valued for durability and termite/weather resistance',
+        },
+        'mahogany': {
+            scientific_name: 'Swietenia macrophylla',
+            growing_regions: 'Wet and intermediate zones, with plantations concentrated around Kurunegala and Kegalle',
+            typical_uses: 'Furniture and high-end joinery — strong local and export demand',
+        },
+        'pine': {
+            scientific_name: 'Pinus caribaea (Caribbean Pine)',
+            growing_regions: 'Wet and intermediate zone hill country reforestation sites (e.g. Belihuloya), 100-2000m elevation',
+            typical_uses: 'Timber, pulpwood, and resin/turpentine production; originally planted for erosion control on degraded land',
+        },
+        'rubber': {
+            scientific_name: 'Hevea brasiliensis',
+            growing_regions: 'Traditionally the wet-zone rubber belt (Kalutara, Ratnapura, Kegalle, Kurunegala); newer plantings in the Northern dry zone since 2010',
+            typical_uses: 'Rubberwood harvested after the ~25-30 year latex-tapping cycle, used for furniture, chipboard, and MDF panel production',
+        },
+    };
+
+    // Builds a compact "Species Profile" info block (scientific name, Sri Lanka
+    // growing regions, typical commercial uses) for a classification result.
+    // Prefers backend-supplied commercial data (already Sri Lanka-specific,
+    // app/data/commercial_species.json) when available/evaluated, otherwise
+    // falls back to the local SPECIES_INFO map above. Returns '' when nothing
+    // is known about the species (e.g. open-set rejected/unknown).
+    function renderSpeciesProfile(name, commercialData) {
+        if (!name) return '';
+        const key = name.toLowerCase();
+        const fromBackend = commercialData && commercialData.evaluated ? commercialData : null;
+        const info = {
+            scientific_name: (fromBackend && fromBackend.scientific_name) || (SPECIES_INFO[key] && SPECIES_INFO[key].scientific_name),
+            growing_regions: (fromBackend && fromBackend.growing_regions) || (SPECIES_INFO[key] && SPECIES_INFO[key].growing_regions),
+            typical_uses: (fromBackend && fromBackend.typical_uses) || (SPECIES_INFO[key] && SPECIES_INFO[key].typical_uses),
+        };
+        if (!info.scientific_name && !info.growing_regions && !info.typical_uses) return '';
+
+        return `
+            <div class="species-profile-note">
+                ${info.scientific_name ? `<p><strong>Scientific name:</strong> ${info.scientific_name}</p>` : ''}
+                ${info.growing_regions ? `<p><strong>Grown in Sri Lanka:</strong> ${info.growing_regions}</p>` : ''}
+                ${info.typical_uses ? `<p><strong>Typical uses:</strong> ${info.typical_uses}</p>` : ''}
+            </div>
+        `;
     }
 
     // =========================================================================
@@ -983,10 +1193,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         container.innerHTML = results
-            .map((result) => {
+            .map((result, resultIdx) => {
+                const delayStyle = `animation-delay:${resultIdx * 50}ms`;
                 if (!result.dbh_success) {
                     return `
-                        <article class="result-card error">
+                        <article class="result-card error fade-in-up" style="${delayStyle}">
                             <h3>${matEscapeHtml(result.tree_id)}</h3>
                             <div>${matEscapeHtml(result.species || '')}</div>
                             <div class="note">${matEscapeHtml(result.reason || 'DBH could not be measured reliably.')}</div>
@@ -997,7 +1208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? result.optional_fields_used.join(', ')
                     : 'None';
                 return `
-                    <article class="result-card">
+                    <article class="result-card fade-in-up" style="${delayStyle}">
                         <h3>${matEscapeHtml(result.tree_id)}</h3>
                         <div>${matEscapeHtml(result.species)}</div>
                         <div class="metrics">
@@ -1303,6 +1514,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const heroSpecies = document.getElementById('autoFlowSpeciesName');
         const heroConfidence = document.getElementById('autoFlowConfidence');
         const heroCommercial = document.getElementById('autoFlowCommercial');
+        const heroSpeciesProfile = document.getElementById('autoFlowSpeciesProfile');
 
         if (tree) {
             const known = tree.status === 'known';
@@ -1312,12 +1524,14 @@ document.addEventListener('DOMContentLoaded', () => {
             heroConfidence.textContent = `${((tree.detection?.confidence || 0) * 100).toFixed(1)}%`;
             const comm = tree.commercial || {};
             heroCommercial.textContent = comm.evaluated ? (comm.commercial_flag ? 'Commercial species' : 'Non-commercial') : 'Not evaluated';
+            heroSpeciesProfile.innerHTML = renderSpeciesProfile(tree.raglo && tree.raglo.final_species, comm);
         } else {
             heroBadge.textContent = 'NO TREE DETECTED';
             heroBadge.className = 'status-badge open_set_rejected';
             heroSpecies.textContent = 'N/A';
             heroConfidence.textContent = '0.0%';
             heroCommercial.textContent = 'Not evaluated';
+            heroSpeciesProfile.innerHTML = '';
         }
 
         const unresolvedCard = document.getElementById('autoFlowUnresolvedCard');

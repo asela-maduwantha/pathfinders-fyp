@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function stepperStart(containerEl, prefix, count) {
         if (containerEl) containerEl.classList.remove('hidden');
+        if (containerEl) updateProgress(containerEl, 10, 'Analysis in progress');
         for (let i = 1; i <= count; i += 1) {
             const el = document.getElementById(`${prefix}${i}`);
             if (el) el.className = 'stepper-step active';
@@ -63,6 +64,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const el = document.getElementById(`${prefix}${i}`);
             if (el) el.className = success ? 'stepper-step complete' : 'stepper-step';
         }
+        const first = document.getElementById(`${prefix}1`);
+        const container = first && first.closest('.stepper');
+        if (container) updateProgress(container, success ? 100 : 0, success ? 'Analysis complete' : 'Analysis stopped', !success);
+    }
+
+    function updateProgress(container, percent, label, isError = false) {
+        let progress = container.querySelector('.embedded-progress');
+        if (!progress) {
+            progress = document.createElement('div');
+            progress.className = 'embedded-progress';
+            progress.innerHTML = '<div><span class="embedded-progress-label"></span><strong class="embedded-progress-percent"></strong></div><div class="compact-progress-track"><span></span></div>';
+            container.prepend(progress);
+        }
+        progress.classList.toggle('error', isError);
+        progress.classList.toggle('running', percent > 0 && percent < 100);
+        progress.querySelector('.embedded-progress-label').textContent = label;
+        progress.querySelector('.embedded-progress-percent').textContent = `${percent}%`;
+        progress.querySelector('.compact-progress-track span').style.width = `${percent}%`;
     }
 
     // --- File selection (multi-file, own dropzone) ---
@@ -101,12 +120,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function addFiles(fileList) {
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        let rejected = 0;
         for (const file of Array.from(fileList)) {
-            if (!validTypes.includes(file.type)) continue;
-            if (file.size > 20 * 1024 * 1024) continue;
+            if (!validTypes.includes(file.type) || file.size > 20 * 1024 * 1024) { rejected += 1; continue; }
+            if (selectedFiles.some((selected) => selected.name === file.name && selected.size === file.size)) continue;
             selectedFiles.push(file);
         }
         renderFileList();
+        setStatus(detectStatus, rejected ? `${rejected} unsupported or oversized file(s) were skipped.` : `${selectedFiles.length} photo(s) ready for detection.`, rejected > 0);
     }
 
     browseBtn.addEventListener('click', (e) => {
@@ -140,9 +161,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return (lengthM * girthM * girthM) / (4 * Math.PI);
     }
 
-    function renderCropCard(imageResult, crop) {
+    function renderCropCard(imageResult, crop, staggerIdx) {
         const card = document.createElement('div');
-        card.className = 'card tree-card';
+        card.className = 'card tree-card fade-in-up';
+        card.style.animationDelay = `${(staggerIdx || 0) * 50}ms`;
         card.id = `timberCrop_${crop.crop_id}`;
 
         const confPct = crop.confidence !== null && crop.confidence !== undefined ? `${(crop.confidence * 100).toFixed(1)}%` : 'N/A';
@@ -198,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="action-bar">
                             <button type="button" class="btn btn-secondary timber-remove-crop">Remove This Crop</button>
                         </div>
+                        <p class="timber-card-validation">Enter both measurements to include this log in grading.</p>
                         <div class="timber-grade-body"></div>
                     </div>
                 </div>
@@ -214,6 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
         function refreshVolume() {
             const volume = volumeFromInputs(parseFloat(lengthInput.value), parseFloat(girthInput.value));
             volumeInput.value = volume !== null ? volume.toFixed(4) : '-';
+            card.classList.toggle('measurement-ready', volume !== null);
+            card.querySelector('.timber-card-validation').textContent = volume !== null ? 'Ready for grading.' : 'Enter both measurements to include this log in grading.';
+            updateGradeReadiness();
         }
         lengthInput.addEventListener('input', refreshVolume);
         girthInput.addEventListener('input', refreshVolume);
@@ -223,6 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!record) return;
             record.removed = true;
             card.classList.add('hidden');
+            updateGradeReadiness();
         });
 
         cropRecords[crop.crop_id] = {
@@ -235,6 +262,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         return card;
+    }
+
+    function updateGradeReadiness() {
+        const ready = Object.values(cropRecords).filter((record) => !record.removed && parseFloat(record.lengthInput.value) > 0 && parseFloat(record.girthInput.value) > 0).length;
+        gradeBtn.textContent = ready ? `Grade ${ready} ${ready === 1 ? 'log' : 'logs'}` : 'Grade crops';
+        gradeBtn.disabled = ready === 0;
     }
 
     function renderDetectionResults(data) {
@@ -254,8 +287,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const list = document.createElement('div');
             list.className = 'trees-list-container';
             (imageResult.crops || []).forEach((crop) => {
+                list.appendChild(renderCropCard(imageResult, crop, totalCrops));
                 totalCrops += 1;
-                list.appendChild(renderCropCard(imageResult, crop));
             });
             if (!imageResult.crops || !imageResult.crops.length) {
                 const empty = document.createElement('p');
@@ -268,6 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         gradeCard.classList.toggle('hidden', totalCrops === 0);
+        updateGradeReadiness();
         setStatus(detectStatus, totalCrops
             ? `Detection complete. ${totalCrops} crop(s) ready for measurements.`
             : 'Detection complete. No crops passed the quality gates.');
@@ -415,7 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setStatus(gradeStatus, err.message || 'Grading failed.', true);
             stepperFinish('timberGradeStep', 3, false);
         } finally {
-            gradeBtn.disabled = false;
+            updateGradeReadiness();
         }
     });
 });

@@ -523,6 +523,9 @@ class IntegratedPipeline:
                     "commercial_flag": is_comm,
                     "status": comm_data.get("status", "Commercial species"),
                     "category": comm_data.get("category", "Commercial timber species"),
+                    "scientific_name": comm_data.get("scientific_name"),
+                    "growing_regions": comm_data.get("growing_regions"),
+                    "typical_uses": comm_data.get("typical_uses"),
                     "note": comm_data.get("note", "Preliminary species-based commercial indication only.")
                 }
             else:
@@ -531,6 +534,9 @@ class IntegratedPipeline:
                     "commercial_flag": None,
                     "status": "Not evaluated",
                     "category": "N/A",
+                    "scientific_name": None,
+                    "growing_regions": None,
+                    "typical_uses": None,
                     "note": None
                 }
 

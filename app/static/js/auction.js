@@ -499,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
         host.innerHTML = `
             <section class="card gb-upload-card">
                 <div class="card-header"><h2>1. Upload timber photos</h2><p>Use clear photos where the cut face is visible and reasonably sharp. Multiple files are supported.</p></div>
-                <label class="gb-dropzone" id="gbDropzone">
+                <label class="gb-dropzone" id="gbDropzone" tabindex="0" role="button">
                     <input type="file" id="gbFiles" accept=".jpg,.jpeg,.png,.webp" multiple hidden>
                     <span class="upload-icon"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0L7 9m5-5 5 5"/><path d="M4 15v4h16v-4"/></svg></span>
                     <strong>Drop timber photos here</strong><small>JPEG, PNG or WEBP · maximum 20MB each</small>
@@ -568,6 +568,12 @@ document.addEventListener('DOMContentLoaded', () => {
             status.textContent = rejected.length ? `${rejected.length} unsupported or oversized file(s) were skipped.` : `${files.length} photo(s) selected.`;
         }
         input.addEventListener('change', () => { addFiles(input.files); input.value = ''; });
+        dropzone.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                input.click();
+            }
+        });
         dropzone.addEventListener('dragover', (event) => { event.preventDefault(); dropzone.classList.add('drag-over'); });
         dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
         dropzone.addEventListener('drop', (event) => { event.preventDefault(); dropzone.classList.remove('drag-over'); addFiles(event.dataTransfer.files); });

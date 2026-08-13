@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Canopy Intelligence — Forestry Analysis Workspace</title>
-    <link rel="stylesheet" href="/static/css/style.css?v=timber-ux-1">
+    <link rel="stylesheet" href="/static/css/style.css?v=operator-ux-2">
 </head>
 <body>
+    <a class="skip-link" href="#mainContent">Skip to analysis workspace</a>
     <div class="app-shell">
-        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+        <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
         <!-- Sidebar: brand + grouped analysis mode navigation, ordered to match the
              pipeline itself: single stages -> combined stages -> full end-to-end chain,
              then the independent timber/auction modules. -->
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar" id="sidebar" aria-label="Analysis tools">
             <div class="sidebar-brand">
                 <div class="header-icon">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8"/><path d="M5 12c-2.7-4.3.2-9.2 7-10 1 6.4-1.8 10-7 10Z"/><path d="M19 16c2.3-3.6-.1-7.7-5.8-8.4-.8 5.4 1.6 8.4 5.8 8.4Z"/></svg>
@@ -24,11 +25,11 @@
                 </div>
             </div>
 
-            <nav class="sidebar-nav" aria-label="Analysis Mode Tabs">
+            <nav class="sidebar-nav" aria-label="Analysis tools">
                 <div class="nav-group">
-                    <span class="nav-group-title">Tree Pipeline</span>
+                    <span class="nav-group-title">Tree analysis</span>
                     <button type="button" class="tab-btn" id="tabDetector" data-tab="detector">
-                        <span class="tab-step-badge">1</span>
+                        <span class="tab-step-badge" aria-hidden="true">1</span>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                         <div class="tab-text">
                             <span class="tab-title">Detect trees</span>
@@ -36,7 +37,7 @@
                         </div>
                     </button>
                     <button type="button" class="tab-btn" id="tabClassifier" data-tab="classifier">
-                        <span class="tab-step-badge">2</span>
+                        <span class="tab-step-badge" aria-hidden="true">2</span>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
                         <div class="tab-text">
                             <span class="tab-title">Identify species</span>
@@ -44,7 +45,7 @@
                         </div>
                     </button>
                     <button type="button" class="tab-btn active" id="tabIntegrated" data-tab="integrated">
-                        <span class="tab-step-badge">3</span>
+                        <span class="tab-step-badge" aria-hidden="true">3</span>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
                         <div class="tab-text">
                             <span class="tab-title">Forest inventory</span>
@@ -52,7 +53,7 @@
                         </div>
                     </button>
                     <button type="button" class="tab-btn" id="tabMaturity" data-tab="maturity">
-                        <span class="tab-step-badge">4</span>
+                        <span class="tab-step-badge" aria-hidden="true">4</span>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-3-3L3 18"/></svg>
                         <div class="tab-text">
                             <span class="tab-title">Assess maturity</span>
@@ -60,7 +61,7 @@
                         </div>
                     </button>
                     <button type="button" class="tab-btn" id="tabAutoFlow" data-tab="autoflow">
-                        <span class="tab-step-badge">5</span>
+                        <span class="tab-step-badge" aria-hidden="true">5</span>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                         <div class="tab-text">
                             <span class="tab-title">Complete assessment</span>
@@ -69,9 +70,9 @@
                     </button>
                 </div>
                 <div class="nav-group">
-                    <span class="nav-group-title">Timber &amp; Market</span>
+                    <span class="nav-group-title">Timber &amp; market</span>
                     <button type="button" class="tab-btn" id="tabTimber" data-tab="timber">
-                        <span class="tab-step-badge">6</span>
+                        <span class="tab-step-badge" aria-hidden="true">6</span>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M5 8l7-6 7 6"/><rect x="4" y="8" width="16" height="12" rx="1"/></svg>
                         <div class="tab-text">
                             <span class="tab-title">Grade timber</span>
@@ -79,7 +80,7 @@
                         </div>
                     </button>
                     <button type="button" class="tab-btn" id="tabGradingBid" data-tab="grading-bid">
-                        <span class="tab-step-badge">7</span>
+                        <span class="tab-step-badge" aria-hidden="true">7</span>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
                         <div class="tab-text">
                             <span class="tab-title">Grade &amp; value</span>
@@ -87,7 +88,7 @@
                         </div>
                     </button>
                     <button type="button" class="tab-btn" id="tabAuction" data-tab="auction">
-                        <span class="tab-step-badge">8</span>
+                        <span class="tab-step-badge" aria-hidden="true">8</span>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                         <div class="tab-text">
                             <span class="tab-title">Estimate value</span>
@@ -108,15 +109,21 @@
 
         <div class="app-main">
             <header class="topbar">
-                <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu" aria-expanded="false">
+                <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Open analysis tools" aria-expanded="false" aria-controls="sidebar">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
                 <div class="topbar-copy"><span class="topbar-eyebrow">Analysis workspace</span><span class="topbar-title" id="topbarTitle">Forest inventory</span></div>
                 <div class="system-status"><span class="status-pulse"></span>Models ready</div>
             </header>
 
+            <div class="app-notification hidden" id="appNotification" role="status" aria-live="polite" aria-atomic="true">
+                <div class="notification-icon" aria-hidden="true"></div>
+                <div class="notification-copy"><strong id="notificationTitle">Notice</strong><span id="notificationMessage"></span></div>
+                <button type="button" class="notification-close" id="notificationClose" aria-label="Dismiss notification">&times;</button>
+            </div>
+
         <div class="app-container">
-        <main class="main-content">
+        <main class="main-content" id="mainContent" tabindex="-1">
             <section class="workspace-intro" aria-labelledby="workspaceTitle">
                 <div>
                     <span class="workspace-kicker" id="workspaceKicker">Inventory intelligence</span>
@@ -132,7 +139,7 @@
                     <p id="uploadDesc">Select a high-resolution forest or plantation image containing one or more tree trunks.</p>
                 </div>
 
-                <div class="dropzone" id="dropzone">
+                <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-describedby="fileLimitsText">
                     <input type="file" id="imageInput" accept=".jpg,.jpeg,.png,.webp" hidden>
                     <div class="dropzone-prompt" id="dropzonePrompt">
                         <div class="upload-icon">
@@ -148,7 +155,7 @@
                         <div class="preview-info">
                             <span id="fileName" class="file-name">filename.jpg</span>
                             <span id="fileSize" class="file-size">0.0 MB</span>
-                            <button type="button" class="btn-icon" id="removeImgBtn" title="Remove image">
+                            <button type="button" class="btn-icon" id="removeImgBtn" title="Remove image" aria-label="Remove selected image">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                             </button>
                         </div>
@@ -382,37 +389,36 @@
                     <div id="clfSpeciesProfile"></div>
                 </div>
 
-                <div class="two-column-grid">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Species Probability Distribution</h2>
-                            <p>Confidence distribution across known tree species classes.</p>
-                        </div>
-                        <div class="prob-bars-container" id="clfProbBars">
-                            <!-- Rendered dynamically -->
-                        </div>
-                    </div>
+                <details class="evidence-disclosure">
+                    <summary><span><strong>Technical model evidence</strong><small>Probabilities, attention weights, and classifier input patches</small></span><span class="disclosure-action">View details</span></summary>
+                    <div class="evidence-content">
+                        <div class="two-column-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2>Species Probability Distribution</h2>
+                                    <p>Confidence distribution across known tree species classes.</p>
+                                </div>
+                                <div class="prob-bars-container" id="clfProbBars"><!-- Rendered dynamically --></div>
+                            </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Patch Attention Weights Distribution</h2>
-                            <p>Attention weights allocated across 4 local spatial patches.</p>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2>Patch Attention Weights Distribution</h2>
+                                    <p>Attention weights allocated across 4 local spatial patches.</p>
+                                </div>
+                                <div class="attention-grid" id="clfAttentionGrid"><!-- Rendered dynamically --></div>
+                            </div>
                         </div>
-                        <div class="attention-grid" id="clfAttentionGrid">
-                            <!-- Rendered dynamically -->
-                        </div>
-                    </div>
-                </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <h2>Multi-Scale Preprocessed Classification Input Artifacts</h2>
-                        <p>Global 384x384 aspect-fit representation and 4 local 224x224 spatial corner patches.</p>
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Multi-Scale Preprocessed Classification Input Artifacts</h2>
+                                <p>Global 384x384 aspect-fit representation and 4 local 224x224 spatial corner patches.</p>
+                            </div>
+                            <div class="patches-visualizer-grid" id="clfPatchesGrid"><!-- Rendered dynamically --></div>
+                        </div>
                     </div>
-                    <div class="patches-visualizer-grid" id="clfPatchesGrid">
-                        <!-- Rendered dynamically -->
-                    </div>
-                </div>
+                </details>
             </section>
 
             <!-- Results: Tree Detection + Classification + Maturity Assessment Output -->
@@ -489,8 +495,8 @@
             <!-- Maturity Assessment Panel: merged Single Tree / Multiple Trees, accepts HEIC -->
             <section class="hidden maturity-module" id="maturityPanel">
                 <div class="mode-toggle" id="matModeToggle" role="tablist" aria-label="Maturity Assessment Mode">
-                    <button type="button" class="mode-toggle-btn active" id="matModeSingleBtn" data-mat-mode="single">Single Tree</button>
-                    <button type="button" class="mode-toggle-btn" id="matModeMultipleBtn" data-mat-mode="multiple">Multiple Trees</button>
+                    <button type="button" class="mode-toggle-btn active" id="matModeSingleBtn" data-mat-mode="single" role="tab" aria-controls="matSingleSection">Single Tree</button>
+                    <button type="button" class="mode-toggle-btn" id="matModeMultipleBtn" data-mat-mode="multiple" role="tab" aria-controls="matMultipleSection">Multiple Trees</button>
                 </div>
 
                 <!-- Single Tree Mode -->
@@ -511,8 +517,9 @@
                             </label>
                         </div>
 
-                        <div class="section-title">Optional maturity fields</div>
-                        <div class="mat-form-grid">
+                        <details class="form-disclosure">
+                            <summary><span><strong>Optional maturity details</strong><small>Add site and growth context when available</small></span><span class="disclosure-action">Add details</span></summary>
+                            <div class="mat-form-grid disclosure-form-grid">
                             <label>
                                 <span>Age (years)</span>
                                 <input id="matSingleAgeYears" type="number" min="0" step="0.01">
@@ -551,9 +558,10 @@
                             </label>
                             <label>
                                 <span>Intended product</span>
-                                <select id="matSingleIntendedProduct"></select>
-                            </label>
-                        </div>
+                                    <select id="matSingleIntendedProduct"></select>
+                                </label>
+                            </div>
+                        </details>
 
                         <div class="action-bar">
                             <button id="matSingleRun" type="button" class="btn btn-primary">Run Estimation</button>
@@ -616,8 +624,9 @@
                                 </label>
                             </div>
 
-                            <div class="section-title">Optional maturity fields</div>
-                            <div class="mat-form-grid">
+                            <details class="form-disclosure">
+                                <summary><span><strong>Optional maturity details</strong><small>Add site and growth context when available</small></span><span class="disclosure-action">Add details</span></summary>
+                                <div class="mat-form-grid disclosure-form-grid">
                                 <label>
                                     <span>Age (years)</span>
                                     <input id="matAgeYears" type="number" min="0" step="0.01">
@@ -656,9 +665,10 @@
                                 </label>
                                 <label>
                                     <span>Intended product</span>
-                                    <select id="matIntendedProduct"></select>
-                                </label>
-                            </div>
+                                        <select id="matIntendedProduct"></select>
+                                    </label>
+                                </div>
+                            </details>
 
                             <div class="action-bar">
                                 <button id="matAddTree" type="button" class="btn btn-primary">Add Tree</button>
@@ -738,14 +748,14 @@
                         <p>Upload one or more photos of cut timber log faces. Each accepted cut face is detected, cropped, and prepared for grading.</p>
                     </div>
 
-                    <div class="dropzone" id="timberDropzone">
+                    <div class="dropzone" id="timberDropzone" role="button" tabindex="0" aria-describedby="timberFileLimits">
                         <input type="file" id="timberImageInput" accept=".jpg,.jpeg,.png,.webp" multiple hidden>
                         <div class="dropzone-prompt" id="timberDropzonePrompt">
                             <div class="upload-icon">
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                             </div>
                             <p class="dropzone-text"><strong>Drag and drop timber photos here</strong> or click to browse</p>
-                            <span class="file-limits">Supported formats: JPEG, PNG, WEBP &middot; multiple files allowed &middot; Max 20MB each</span>
+                            <span class="file-limits" id="timberFileLimits">Supported formats: JPEG, PNG, WEBP &middot; multiple files allowed &middot; Max 20MB each</span>
                             <button type="button" class="btn btn-secondary" id="timberBrowseBtn">Choose Photos</button>
                         </div>
 
@@ -824,7 +834,7 @@
                     <h3 id="modalTitle">Tree 1 — View Identification Process</h3>
                     <p id="modalSubtitle">Complete multi-candidate open-set evaluation breakdown</p>
                 </div>
-                <button type="button" class="btn-icon" id="closeModalBtn">&times;</button>
+                <button type="button" class="btn-icon" id="closeModalBtn" aria-label="Close process details">&times;</button>
             </div>
             <div class="modal-body" id="modalBody">
                 <!-- Multi-Candidate breakdown rendered via JS -->
@@ -832,8 +842,8 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js?v=timber-ux-1"></script>
-    <script src="/static/js/timber.js?v=timber-ux-1"></script>
-    <script src="/static/js/auction.js?v=timber-ux-1"></script>
+    <script src="/static/js/app.js?v=operator-ux-2"></script>
+    <script src="/static/js/timber.js?v=operator-ux-2"></script>
+    <script src="/static/js/auction.js?v=operator-ux-2"></script>
 </body>
 </html>

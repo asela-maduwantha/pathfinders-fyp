@@ -137,6 +137,12 @@ document.addEventListener('DOMContentLoaded', () => {
     dropzone.addEventListener('click', () => {
         if (!selectedFiles.length) fileInput.click();
     });
+    dropzone.addEventListener('keydown', (event) => {
+        if ((event.key === 'Enter' || event.key === ' ') && !selectedFiles.length) {
+            event.preventDefault();
+            fileInput.click();
+        }
+    });
     fileInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files.length) addFiles(e.target.files);
         fileInput.value = '';

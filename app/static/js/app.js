@@ -27,6 +27,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const workspaceKicker = document.getElementById('workspaceKicker');
     const workspaceTitle = document.getElementById('workspaceTitle');
     const workspaceDescription = document.getElementById('workspaceDescription');
+    const appNotification = document.getElementById('appNotification');
+    const notificationTitle = document.getElementById('notificationTitle');
+    const notificationMessage = document.getElementById('notificationMessage');
+    const notificationClose = document.getElementById('notificationClose');
+
+    function showNotification(title, message, type = 'error') {
+        if (!appNotification) return;
+        notificationTitle.textContent = title;
+        notificationMessage.textContent = message;
+        appNotification.className = `app-notification ${type}`;
+        appNotification.setAttribute('role', type === 'error' ? 'alert' : 'status');
+        appNotification.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function dismissNotification() {
+        if (appNotification) appNotification.classList.add('hidden');
+    }
+
+    window.showAppNotification = showNotification;
+    if (notificationClose) notificationClose.addEventListener('click', dismissNotification);
 
     // Upload Section Elements
     const uploadTitle = document.getElementById('uploadTitle');
@@ -162,17 +182,25 @@ document.addEventListener('DOMContentLoaded', () => {
         auction: ['Market intelligence', 'Price timber with better context.', 'Model an expected auction value from log quality, dimensions, and market conditions.'],
     };
 
+    const initialActiveTool = tabButtons.find((button) => button && button.classList.contains('active'));
+    if (initialActiveTool) initialActiveTool.setAttribute('aria-current', 'page');
+
     // Mobile Sidebar Drawer (below ~900px the sidebar becomes an off-canvas drawer
     // toggled via the topbar hamburger button; above that it's an always-visible rail).
     function openSidebar() {
         sidebar.classList.add('open');
         sidebarBackdrop.classList.add('open');
         sidebarToggle.setAttribute('aria-expanded', 'true');
+        sidebarToggle.setAttribute('aria-label', 'Close analysis tools');
+        const activeTool = sidebar.querySelector('.tab-btn.active');
+        if (window.matchMedia('(max-width: 900px)').matches && activeTool) activeTool.focus();
     }
-    function closeSidebar() {
+    function closeSidebar(restoreFocus = false) {
         sidebar.classList.remove('open');
         sidebarBackdrop.classList.remove('open');
         sidebarToggle.setAttribute('aria-expanded', 'false');
+        sidebarToggle.setAttribute('aria-label', 'Open analysis tools');
+        if (restoreFocus && window.matchMedia('(max-width: 900px)').matches) sidebarToggle.focus();
     }
     if (sidebarToggle) {
         sidebarToggle.addEventListener('click', () => {
@@ -180,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     if (sidebarBackdrop) {
-        sidebarBackdrop.addEventListener('click', closeSidebar);
+        sidebarBackdrop.addEventListener('click', () => closeSidebar(true));
     }
 
     // Tab Switching Logic
@@ -193,8 +221,12 @@ document.addEventListener('DOMContentLoaded', () => {
             quickAnalysisProgress.classList.add('hidden');
 
             currentMode = mode;
-            tabButtons.forEach(b => b.classList.remove('active'));
+            tabButtons.forEach(b => {
+                b.classList.remove('active');
+                b.removeAttribute('aria-current');
+            });
             btn.classList.add('active');
+            btn.setAttribute('aria-current', 'page');
             if (topbarTitle) {
                 const titleEl = btn.querySelector('.tab-title');
                 topbarTitle.textContent = titleEl ? titleEl.textContent : '';
@@ -255,11 +287,28 @@ document.addEventListener('DOMContentLoaded', () => {
     function setMatMode(mode) {
         matModeSingleBtn.classList.toggle('active', mode === 'single');
         matModeMultipleBtn.classList.toggle('active', mode === 'multiple');
+        matModeSingleBtn.setAttribute('aria-selected', String(mode === 'single'));
+        matModeMultipleBtn.setAttribute('aria-selected', String(mode === 'multiple'));
+        matModeSingleBtn.tabIndex = mode === 'single' ? 0 : -1;
+        matModeMultipleBtn.tabIndex = mode === 'multiple' ? 0 : -1;
         matSingleSection.classList.toggle('hidden', mode !== 'single');
         matMultipleSection.classList.toggle('hidden', mode !== 'multiple');
+        matSingleSection.setAttribute('aria-hidden', String(mode !== 'single'));
+        matMultipleSection.setAttribute('aria-hidden', String(mode !== 'multiple'));
     }
     matModeSingleBtn.addEventListener('click', () => setMatMode('single'));
     matModeMultipleBtn.addEventListener('click', () => setMatMode('multiple'));
+    [matModeSingleBtn, matModeMultipleBtn].forEach((button, index, buttons) => {
+        button.addEventListener('keydown', (event) => {
+            if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+            event.preventDefault();
+            const nextIndex = event.key === 'ArrowRight' ? (index + 1) % buttons.length : (index - 1 + buttons.length) % buttons.length;
+            const nextButton = buttons[nextIndex];
+            setMatMode(nextButton.dataset.matMode);
+            nextButton.focus();
+        });
+    });
+    setMatMode('single');
 
     // Lightweight pipeline stepper (synchronous tabs with no live backend polling):
     // shows every stage the request performs, marks them running while in flight
@@ -327,6 +376,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!selectedFile) imageInput.click();
     });
 
+    dropzone.addEventListener('keydown', (event) => {
+        if ((event.key === 'Enter' || event.key === ' ') && !selectedFile) {
+            event.preventDefault();
+            imageInput.click();
+        }
+    });
+
     imageInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files[0]) {
             handleFileSelect(e.target.files[0]);
@@ -362,17 +418,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
         if (!isHeic && !validTypes.includes(file.type)) {
-            alert(allowHeic
-                ? 'Invalid file format. Please select a JPEG, PNG, WEBP, or HEIC/HEIF image.'
-                : 'Invalid file format. Please select a JPEG, PNG, or WEBP image.');
+            showNotification('Unsupported image', allowHeic
+                ? 'Select a JPEG, PNG, WEBP, or HEIC/HEIF image.'
+                : 'Select a JPEG, PNG, or WEBP image.');
             return;
         }
 
         if (file.size > 20 * 1024 * 1024) {
-            alert('File size exceeds maximum 20MB limit.');
+            showNotification('Image is too large', 'Select an image smaller than 20 MB.');
             return;
         }
 
+        dismissNotification();
         selectedFile = file;
         fileName.textContent = file.name;
         fileSize.textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
@@ -457,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             pollInterval = setInterval(() => pollJobStatus(jobId), 750);
         } catch (err) {
-            alert(`Analysis failed: ${err.message}`);
+            showNotification('Analysis failed', err.message);
             analyzeBtn.disabled = false;
             analyzeBtnText.textContent = "Run Detection + Classification";
             timelineCard.classList.add('hidden');
@@ -523,7 +580,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await fetchAndRenderIntegratedResults(jobId);
             } else if (job.status === 'error') {
                 clearInterval(pollInterval);
-                alert(`Pipeline Error: ${job.message}`);
+                showNotification('Pipeline stopped', job.message);
                 analyzeBtn.disabled = false;
                 analyzeBtnText.textContent = "Run Detection + Classification";
             }
@@ -557,7 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
             analyzeBtn.disabled = false;
             analyzeBtnText.textContent = "Run Detection + Classification";
         } catch (err) {
-            alert(`Error rendering results: ${err.message}`);
+            showNotification('Results could not be displayed', err.message);
         }
     }
 
@@ -779,7 +836,10 @@ document.addEventListener('DOMContentLoaded', () => {
         openModal();
     }
 
+    let modalReturnFocus = null;
+
     function openModal() {
+        modalReturnFocus = document.activeElement;
         processModal.classList.remove('hidden');
         processModal.setAttribute('aria-hidden', 'false');
         document.body.classList.add('modal-open');
@@ -804,6 +864,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             if (!processModal.classList.contains('open')) processModal.classList.add('hidden');
         }, 300);
+        if (modalReturnFocus && typeof modalReturnFocus.focus === 'function') modalReturnFocus.focus();
     }
 
     closeModalBtn.addEventListener('click', closeModal);
@@ -811,7 +872,28 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === processModal) closeModal();
     });
     document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && processModal.classList.contains('open')) closeModal();
+        if (event.key === 'Escape' && processModal.classList.contains('open')) {
+            closeModal();
+            return;
+        }
+        if (event.key === 'Escape' && sidebar.classList.contains('open')) {
+            closeSidebar(true);
+            return;
+        }
+        if (event.key === 'Tab' && processModal.classList.contains('open')) {
+            const focusable = [...processModal.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+                .filter((element) => !element.disabled && element.offsetParent !== null);
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        }
     });
 
     // 2. Tree Detector Only Execution Mode
@@ -885,7 +967,7 @@ document.addEventListener('DOMContentLoaded', () => {
             quickProgressFinish(true);
         } catch (err) {
             quickProgressFinish(false);
-            alert(`Detector error: ${err.message}`);
+            showNotification('Tree detection failed', err.message);
         } finally {
             analyzeBtn.disabled = false;
             analyzeBtnText.textContent = "Run Tree Detection";
@@ -993,7 +1075,7 @@ document.addEventListener('DOMContentLoaded', () => {
             quickProgressFinish(true);
         } catch (err) {
             quickProgressFinish(false);
-            alert(`Classifier error: ${err.message}`);
+            showNotification('Species identification failed', err.message);
         } finally {
             analyzeBtn.disabled = false;
             analyzeBtnText.textContent = "Classify Species";
@@ -1493,7 +1575,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resultsWrapperAutoFlow.classList.remove('hidden');
             stepperFinish('autoFlowStep', 3, true);
         } catch (err) {
-            alert(`Full pipeline failed: ${err.message}`);
+            showNotification('Complete assessment failed', err.message);
             stepperFinish('autoFlowStep', 3, false);
         } finally {
             analyzeBtn.disabled = false;
